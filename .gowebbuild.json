@@ -1,0 +1,26 @@
+{
+  "Watch": {
+    "Path": "./frontend/src"
+  },
+  "Copy": [
+    {
+      "Src": "./frontend/index.html",
+      "Dest": "./frontend-dist"
+    }
+  ],
+  "ESBuild": {
+    "EntryPoints": [
+      "./frontend/src/the-app.js",
+      "./frontend/src/the-sources.js",
+      "./frontend/src/the-404.js"
+    ],
+    "Outdir":    "./frontend-dist",
+    "Sourcemap": 1,
+    "Format":    3,
+    "Splitting": true,
+    "Platform":  0,
+    "Bundle":    true,
+    "Write":     true,
+    "LogLevel":  3
+  }
+}

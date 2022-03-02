@@ -1,0 +1,5 @@
+vendor/
+_mongo/
+frontend-dist/
+node_modules/
+tmp/

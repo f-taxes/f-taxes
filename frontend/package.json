@@ -1,0 +1,15 @@
+{
+  "name": "f-taxes-frontend",
+  "version": "0.0.1",
+  "description": "The web frontend for f-taxes",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "trading_peter",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "lit": "^2.2.0",
+    "path-to-regexp": "^6.2.0"
+  }
+}
