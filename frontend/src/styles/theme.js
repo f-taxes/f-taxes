@@ -3,6 +3,7 @@ import { css } from 'lit';
 export default css`
   :host {
     --text: #C5C6CC;
+    --text-dark: #000000;
     --bg1: #031331;
     --hl1: #46C8AF;
     --hl2: #3C5EC7;
@@ -10,8 +11,14 @@ export default css`
     --menu-background: var(--bg1);
     --menu-color: var(--hl1);
     --card-box-background: var(--bg1);
+    --input-bg: #122444;
+    --input-border: solid 1px var(--hl2);
     --tp-icon-color: var(--hl1);
     --tp-button-bg: var(--hl2);
+    --tp-button-bg-hover: var(--hl1);
+    --tp-button-bg-focus: var(--hl1);
+    --tp-button-color-hover: var(--text-dark);
+    --tp-button-color-focus: var(--text-dark);
     --tp-dialog-bg: var(--bg1);
     --tp-dialog-border: solid 2px var(--hl1);
     --tp-dialog-border-radius: 10px;

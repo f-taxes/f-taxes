@@ -38,7 +38,6 @@ class TheMenu extends Store(LitElement) {
   render() {
     const { items } = this;
     const routeData = this.routeParams.join('-');
-    console.log(routeData);
 
     return html`
       <div class="title">F-TAXES</div>

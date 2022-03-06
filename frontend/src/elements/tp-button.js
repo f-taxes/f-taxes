@@ -7,9 +7,10 @@ This program is available under Apache License Version 2.0
 import './tp-spinner.js';
 import './tp-icon.js';
 import { LitElement, html, css, svg } from 'lit';
-import { eventHelpers } from '../helpers/event-helpers.js';
+import { EventHelpers } from '../helpers/event-helpers.js';
+import { closest } from '../helpers/closest.js';
 
-class TpButton extends eventHelpers(LitElement) {
+class TpButton extends EventHelpers(LitElement) {
   static get styles() {
     return css`
       :host {
@@ -26,6 +27,10 @@ class TpButton extends eventHelpers(LitElement) {
         pointer-events: none;
         background: var(--tp-button-bg-disabled, #9E9E9E);
         color: var(--tp-button-color-disabled, rgba(255,255,255, 0.5));
+      }
+
+      :host([locked]) {
+        pointer-events: none;
       }
 
       :host(:hover) {
@@ -131,6 +136,7 @@ class TpButton extends eventHelpers(LitElement) {
     return {
       submit: { type: Boolean },
       extended: { type: Boolean },
+      locked: { type: Boolean, reflect: true },
     };
   }
 
@@ -186,14 +192,7 @@ class TpButton extends eventHelpers(LitElement) {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this._unlisten(this, 'keypress', '_keyPressed');
-
-    if (this._form) {
-      this._unlisten(this._form, 'submit', '_onFormSubmit');
-      this._unlisten(this._form, 'error', '_onFormFailed');
-      this._unlisten(this._form, 'invalid', '_onFormFailed');
-      this._unlisten(this._form, 'response', '_onFormSuccess');
-    }
+    this.unlisten(this, 'keypress', '_keyPressed');
   }
 
   shouldUpdate(changes) {
@@ -212,11 +211,7 @@ class TpButton extends eventHelpers(LitElement) {
         console.warn(this.tagName + ': No parent form found!');
         this.submit = false;
       } else {
-        this._listen(this, 'click', '_submitOnTap');
-        this._listen(this._form, 'submit', '_onFormSubmit');
-        this._listen(this._form, 'error', '_onFormFailed');
-        this._listen(this._form, 'invalid', '_onFormFailed');
-        this._listen(this._form, 'response', '_onFormSuccess');
+        this.listen(this, 'click', '_submitOnTap');
       }
     }
   }
@@ -237,6 +232,7 @@ class TpButton extends eventHelpers(LitElement) {
     await this._wait(this.pause);
     this._wrapEl.classList.remove('success-bg');
     await this._switch(this._labelEl);
+    this.locked = false;
   }
 
   async showError() {
@@ -255,6 +251,7 @@ class TpButton extends eventHelpers(LitElement) {
     await this._wait(this.pause);
     this._wrapEl.classList.remove('error-bg');
     await this._switch(this._labelEl);
+    this.locked = false;
   }
 
   showSpinner() {
@@ -268,6 +265,7 @@ class TpButton extends eventHelpers(LitElement) {
       return;
     }
 
+    this.locked = true;
     this._switch(this._spinnerEl);
   }
 
@@ -283,6 +281,7 @@ class TpButton extends eventHelpers(LitElement) {
     }
 
     this._switch(this._labelEl);
+    this.locked = false;
   }
 
   async _switch(el) {
@@ -299,7 +298,7 @@ class TpButton extends eventHelpers(LitElement) {
     this._visEl = el;
 
     this._isAnimating = false;
-
+    
     if (this._queue.length > 0) {
       const cmd = this._queue.shift();
       this[cmd]();
@@ -332,29 +331,7 @@ class TpButton extends eventHelpers(LitElement) {
   }
 
   _onFormSubmit() {
-    if (this._form.action) {
-      this.showSpinner();
-    }
-  }
-
-  _onFormSuccess() {
-    this._isSubmitting = false;
-    this.showSuccess();
-  }
-
-  _onFormFailed(e) {
-    // Only react if this button instance was the actual pressed button.
-    // We have to check this in case the parent form has multiple submit buttons.
-    if (this._form.submitButton === this) {
-      if (e) {
-        if (e.composedPath()[0] !== this._form) {
-          return;
-        }
-      }
-
-      this._isSubmitting = false;
-      this.showError();
-    }
+    this.showSpinner();
   }
 
   _findSubmitTarget() {
@@ -365,7 +342,7 @@ class TpButton extends eventHelpers(LitElement) {
     }
 
     if (!target) {
-      target = this._closest(this, 'tp-form, form[is="iron-form"]', true);
+      target = closest(this, 'tp-form', true);
     }
 
     return target;

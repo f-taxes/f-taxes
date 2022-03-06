@@ -5,7 +5,7 @@
  * @param  {String} eventName Name of the event.
  * @param  {String} cbName    Name of the handler.
  */
-export const eventHelpers = function(superClass) {
+export const EventHelpers = function(superClass) {
   return class extends superClass {
     listen(node, eventName, cbName) {
       this.__boundEventListeners = this.__boundEventListeners || new WeakMap();
@@ -32,7 +32,7 @@ export const eventHelpers = function(superClass) {
      * @param  {String} eventName Name of the event.
      * @param  {String} cbName    Name of the handler.
      */
-    _unlisten(node, eventName, cbName) {
+    unlisten(node, eventName, cbName) {
       this.__boundEventListeners = this.__boundEventListeners || new WeakMap();
       const listeners = this.__boundEventListeners.get(node);
       const eventKey = `${eventName}_${cbName}`;
@@ -43,15 +43,15 @@ export const eventHelpers = function(superClass) {
       }
     }
 
-    _once(node, eventName, cbName) {
+    once(node, eventName, cbName) {
       const wrappedCbName = `__onceCb__${cbName}`;
 
       this[wrappedCbName] = (...args) => {
         this[cbName](...args);
-        this._unlisten(node, eventName, wrappedCbName);
+        this.unlisten(node, eventName, wrappedCbName);
       };
 
-      this._listen(node, eventName, wrappedCbName);
+      this.listen(node, eventName, wrappedCbName);
     }
   }
 }

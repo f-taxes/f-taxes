@@ -6,6 +6,7 @@ import (
 
 	"github.com/f-taxes/f-taxes/backend/config"
 	"github.com/f-taxes/f-taxes/backend/global"
+	"github.com/f-taxes/f-taxes/backend/sources"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/view"
@@ -25,6 +26,7 @@ func Start(webAssets embed.FS) {
 	global.ConnectDB(cfg)
 
 	registerFrontend(app, cfg, webAssets)
+	sources.RegisterRoutes(app)
 
 	if err := app.Listen(cfg.MustString("addr")); err != nil {
 		golog.Fatal(err)

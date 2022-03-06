@@ -6,9 +6,11 @@ This program is available under Apache License Version 2.0
 
 import './tp-icon.js';
 import { LitElement, html, css } from 'lit';
+import { EventHelpers } from '../helpers/event-helpers.js';
+import { closest } from '../helpers/closest.js';
 import icons from '../icons';
 
-class TpDialog extends LitElement {
+class TpDialog extends EventHelpers(LitElement) {
   static get styles() {
     return [
       css`
@@ -27,8 +29,8 @@ class TpDialog extends LitElement {
 
         .close-icon {
           position: absolute;
-          right: 6px;
-          top: 8px;
+          right: 4px;
+          top: 5px;
           --tp-icon-width: 18px;
           --tp-icon-height: 18px;
         }
@@ -42,7 +44,7 @@ class TpDialog extends LitElement {
       <dialog>
         ${showClose ? html`
           <div class="close-icon">
-            <tp-icon .icon=${icons.close} @click=${() => this.close()}></tp-icon>
+            <tp-icon .icon=${icons.close} dialog-dismiss></tp-icon>
           </div>
         ` : null}
         <slot></slot>
@@ -61,6 +63,16 @@ class TpDialog extends LitElement {
     return this.shadowRoot.querySelector('dialog');
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.listen(this, 'click', '_onDialogClick');
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unlisten(this, 'click', '_onDialogClick');
+  }
+
   show() {
     this.dialog.show();
     this.open = true;
@@ -74,6 +86,29 @@ class TpDialog extends LitElement {
   close() {
     this.dialog.close();
     this.open = false;
+  }
+
+  _onDialogClick(event) {
+    var rootTarget = event.composedPath()[0];
+    var target = closest(rootTarget, '[dialog-dismiss]', true) || closest(rootTarget, '[dialog-confirm]', true);
+    while (target && target !== this) {
+      if (target.hasAttribute) {
+        if (target.hasAttribute('dialog-dismiss')) {
+          var reason = target.getAttribute('dialog-dismiss');
+          this.dispatchEvent(new CustomEvent('dismissed', { detail: reason.length > 0 ? reason : true, bubbles: true, composed: true }));
+          this.close();
+          event.stopPropagation();
+          break;
+        } else if (target.hasAttribute('dialog-confirm')) {
+          var reason = target.getAttribute('dialog-confirm');
+          this.dispatchEvent(new CustomEvent('confirmed', { detail: reason.length > 0 ? reason : true, bubbles: true, composed: true }));
+          this.close();
+          event.stopPropagation();
+          break;
+        }
+      }
+      target = target.parentNode;
+    }
   }
 }
 

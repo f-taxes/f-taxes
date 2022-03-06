@@ -41,8 +41,6 @@ class TheApp extends Store(LitElement) {
     const p = routeParams || [];
     const page = p[0];
 
-    console.log(routeParams);
-
     return html`
       <the-router @data-changed=${this.routeDataChanged}>
         <the-route path="*" data="404"></the-route>
@@ -53,7 +51,7 @@ class TheApp extends Store(LitElement) {
       <div class="main">
         <the-menu></the-menu>
         ${page === '404' ? html`<the-404></the-404>` : null }
-        ${page === 'sources' ? html`<the-sources></the-sources>` : null }
+        ${page === 'sources' ? html`<the-sources .active=${page === 'sources'}></the-sources>` : null }
       </div>
     `;
   }
@@ -83,7 +81,6 @@ class TheApp extends Store(LitElement) {
   }
 
   routeDataChanged(e) {
-    console.log(e);
     this.route = e.detail;
     this.routeParams = this.route.split('-');
     this._storeWrite('routeParams', this.routeParams);

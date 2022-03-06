@@ -8,12 +8,14 @@ import './elements/tp-button.js';
 import './elements/tp-icon.js';
 import './elements/tp-dialog.js';
 import './elements/card-box.js';
+import './elements/the-source-form.js';
 import { LitElement, html, css } from 'lit';
 import shared from './styles/shared.js';
 import icons from './icons.js';
 import { DomQuery } from './helpers/dom-query.js'
+import { fetchMixin } from './helpers/fetch-mixin.js';
 
-class TheSources extends DomQuery(LitElement) {
+class TheSources extends fetchMixin(DomQuery(LitElement)) {
   static get styles() {
     return [
       shared,
@@ -56,11 +58,12 @@ class TheSources extends DomQuery(LitElement) {
       </card-box>
 
       <tp-dialog id="addSourceDialog" showClose>
-        <tp-button @click=${() => this.$.addSourceDialog2.showModal()}>Add <tp-icon .icon=${icons.add}></tp-icon></tp-button>
-      </tp-dialog>
-
-      <tp-dialog id="addSourceDialog2">
-        
+        <h2>Add source to pull transaction history from</h2>
+        <the-source-form @submit=${this.addSource}></the-source-form>
+        <div class="buttons-justified">
+          <tp-button dialog-dismiss>Cancel</tp-button>
+          <tp-button id="addSourceBtn" @click=${() => this.shadowRoot.querySelector('the-source-form').submit()} extended>Add</tp-button>
+        </div>
       </tp-dialog>
     `;
   }
@@ -68,6 +71,8 @@ class TheSources extends DomQuery(LitElement) {
   static get properties() {
     return {
       sources: { type: Array },
+      items: { type: Array },
+      active: { type: Boolean, reflect: true },
     };
   }
 
@@ -78,6 +83,18 @@ class TheSources extends DomQuery(LitElement) {
 
   startAddSource() {
     this.$.addSourceDialog.show();
+  }
+
+  async addSource(e) {
+    this.$.addSourceBtn.showSpinner();
+    const resp = await this.post('/source/add', e.detail);
+    
+    if (resp.result) {
+      this.$.addSourceBtn.showSuccess();
+      this.$.addSourceDialog.close();
+    } else {
+      this.$.addSourceBtn.showError();
+    }
   }
 }
 
