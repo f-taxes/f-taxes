@@ -6,7 +6,7 @@ This program is available under Apache License Version 2.0
 
 import './elements/menu-button.js';
 import { LitElement, html, css } from 'lit';
-import { Store } from './elements/the-store/the-store-mixin.js'
+import { Store } from './elements/tp-store/tp-store.js'
 
 class TheMenu extends Store(LitElement) {
   static get styles() {

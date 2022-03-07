@@ -32,6 +32,11 @@ class TheSourceForm extends fetchMixin(LitElement) {
         <form>
           <tp-dropdown name="source" .default=${firstSource.id} .items=${this.availSources.map(src => ({ value: src.id, label: src.label }))} @value-changed=${e => this.selSource = e.detail}></tp-dropdown>
 
+          <label>Label</label>
+          <tp-input name="label" required errorMessage="Required">
+            <input type="text">
+          </tp-input>
+
           <label>API Key</label>
           <tp-input name="key" required errorMessage="Required">
             <input type="text">
@@ -48,6 +53,9 @@ class TheSourceForm extends fetchMixin(LitElement) {
               <input type="text" placeholder="Leave empty for main account">
             </tp-input>
           ` : null}
+
+          <label>Notes</label>
+          <textarea name="notes"></textarea>
         </form>
       </tp-form>
     `;

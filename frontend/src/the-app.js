@@ -8,10 +8,12 @@ import './elements/the-router/the-router.js';
 import './the-menu.js';
 import { LitElement, html, css } from 'lit';
 import theme from './styles/theme.js';
-import { Store } from './elements/the-store/the-store-mixin.js';
+import { Store } from './elements/tp-store/tp-store.js';
 import LazyImports from './helpers/lazy-imports.js'
+import WS from './helpers/ws.js';
+import { fetchMixin } from './helpers/fetch-mixin.js';
 
-class TheApp extends Store(LitElement) {
+class TheApp extends fetchMixin(Store(LitElement)) {
   static get styles() {
     return [
       theme,
@@ -80,11 +82,47 @@ class TheApp extends Store(LitElement) {
     );
   }
 
+  firstUpdated() {
+    super.firstUpdated();
+    this.fetchSrcConnections();
+  }
+
+  async connectedCallback() {
+    super.connectedCallback();
+    this.ws = await this._connectWebsocket();
+  }
+
   routeDataChanged(e) {
     this.route = e.detail;
     this.routeParams = this.route.split('-');
     this._storeWrite('routeParams', this.routeParams);
     this.importer.import([ this.route ]);
+  }
+
+  async _connectWebsocket() {
+    const ws = new WS();
+
+    ws.onConnect(async () => {
+      this.connected = true;
+    });
+
+    ws.onDisconnect(() => {
+      this.connected = false;
+    });
+
+    ws.onMsg(async msg => {
+      if (msg.event === 'update-src-connections') {
+        this.fetchSrcConnections();
+      }
+    })
+
+    await ws.connect();
+    return ws;
+  }
+
+  async fetchSrcConnections() {
+    const resp = await this.get('/sources/connections/list')
+    this._storeWrite('srcConnections', resp.data);
   }
 }
 

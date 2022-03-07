@@ -28,6 +28,8 @@ func Start(webAssets embed.FS) {
 	registerFrontend(app, cfg, webAssets)
 	sources.RegisterRoutes(app)
 
+	global.SetupWebsocketServer(app)
+
 	if err := app.Listen(cfg.MustString("addr")); err != nil {
 		golog.Fatal(err)
 	}

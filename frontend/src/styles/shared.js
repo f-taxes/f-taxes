@@ -25,6 +25,19 @@ export default css`
     --tp-icon-color: var(--text-dark);
   }
 
+  tp-icon.button-like {
+    padding: 3px;
+    border-radius: 300px;
+    background: var(--hl2);
+    --tp-icon-color: var(--text);
+  }
+
+  tp-icon.button-like:focus,
+  tp-icon.button-like:hover {
+    background: var(--hl1);
+    --tp-icon-color: var(--text-dark);
+  }
+
   tp-input::part(wrap) {
     font-size: 18px;
     background: var(--input-bg);
@@ -33,6 +46,10 @@ export default css`
 
   tp-input[focused]::part(wrap) {
     border: solid 1px var(--hl1);
+  }
+
+  tp-input[invalid]::part(wrap) {
+    border: solid 1px var(--red);
   }
 
   tp-input::part(error-message) {
@@ -89,5 +106,22 @@ export default css`
   tp-form label {
     display: block;
     margin-bottom: 5px;
+  }
+
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--input-bg);
+    border: var(--input-border);
+    outline: none;
+    border-radius: 2px;
+    color: var(--text);
+    font-size: 18px;
+    font-family: 'Source Sans Pro';
+    height: 80px;
+  }
+
+  textarea:focus {
+    border: solid 1px var(--hl1);
   }
 `;

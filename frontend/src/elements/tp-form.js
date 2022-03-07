@@ -108,9 +108,6 @@ class TpForm extends LitElement {
     super.disconnectedCallback();
     this.removeEventListener('form-element-register', this._addElement);
     this.removeEventListener('form-element-unregister', this._removeElement);
-
-    this._nodeObserver.disconnect();
-    this._nodeObserver = null;
   }
 
   _handleSlotChange(e) {

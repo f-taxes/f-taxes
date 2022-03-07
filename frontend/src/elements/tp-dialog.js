@@ -15,7 +15,17 @@ class TpDialog extends EventHelpers(LitElement) {
     return [
       css`
         :host {
-          display: block;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: fixed;
+          inset: 0px;
+          pointer-events: none;
+          overflow: auto;
+        }
+
+        :host([open]) {
+          pointer-events: all;
         }
 
         dialog {

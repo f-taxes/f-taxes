@@ -23,6 +23,8 @@ type SourceInfo struct {
 
 type SourceConnection struct {
 	ID         primitive.ObjectID `bson:"_id" json:"_id"`
+	Label      string             `bson:"label" json:"label"`
+	Note       string             `bson:"note" json:"note"`
 	SourceID   string             `bson:"sourceId" json:"source"`
 	ApiKey     string             `bson:"apiKey" json:"key"`
 	ApiSecret  string             `bson:"apiSecret" json:"secret"`

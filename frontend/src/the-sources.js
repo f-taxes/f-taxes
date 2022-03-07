@@ -14,8 +14,10 @@ import shared from './styles/shared.js';
 import icons from './icons.js';
 import { DomQuery } from './helpers/dom-query.js'
 import { fetchMixin } from './helpers/fetch-mixin.js';
+import { Store } from './elements/tp-store/tp-store.js';
+import { logos } from './logos.js';
 
-class TheSources extends fetchMixin(DomQuery(LitElement)) {
+class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
   static get styles() {
     return [
       shared,
@@ -36,24 +38,105 @@ class TheSources extends fetchMixin(DomQuery(LitElement)) {
           text-align: center;
           font-size: 20px;
         }
+
+        .src {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          grid-template-rows: 1fr 1fr auto;
+          gap: 0 20px;
+          grid-auto-flow: row;
+          grid-template-areas:
+            "logo label actions"
+            "logo key actions";
+          margin-top: 20px;
+          background: var(--bg0);
+          padding: 10px;
+        }
+
+        .logo {
+          padding: 10px;
+          font-size: 30px;
+          grid-area: logo;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 8px;
+          background: var(--white);
+        }
+
+        .logo img {
+          max-width: 80px;
+        }
+
+        .label {
+          grid-area: label;
+          align-items: center;
+        }
+
+        .key {
+          grid-area: key;
+        }
+
+        .label,
+        .key {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-column-gap: 20px;
+        }
+
+        .label > div,
+        .key > div {
+          display: flex;
+          align-items: center;
+        }
+
+        .actions {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          grid-area: actions;
+        }
+
+        .src label {
+          color: var(--text-low);
+          margin-right: 10px;
+        }
       `
     ];
   }
 
   render() {
-    const { sources } = this;
+    const { srcConnections } = this;
 
     return html`
       <h2>Add your exchange accounts here</h2>
       <card-box>
         <header>
-          <h3>You have ${sources.length} sources set up</h3>
+          <h3>You have ${srcConnections.length} sources set up</h3>
           <tp-button @click=${this.startAddSource}>Add <tp-icon .icon=${icons.add}></tp-icon></tp-button>
         </header>
         <div class="list">
-          ${sources.length == 0 ? html`
+          ${srcConnections.length == 0 ? html`
             <div class="empty">Click the "Add"-Button on the top right to add your first source</div>
-          ` : null}
+          ` : srcConnections.map(con => html`
+            <div class="src">
+              <div class="logo">
+                <img src=${logos[con.source]}></img>
+              </div>
+              <div class="label">
+                <div><label>Label:</label>${con.label}</div>
+                <div><label>Last Fetched:</label>${con.lastFetch || 'Never'}</div>
+              </div>
+              <div class="key">
+                <div><label>Api Key:</label>${con.key.substring(0, 6)}...</div>
+                <div><label>Api Secret:</label>***</div>
+              </div>
+              <div class="actions">
+                <tp-icon class="button-like" .icon=${icons.refresh} tooltipValign="top" tooltip="Fetch newest data from this source"></tp-icon>
+              </div>
+            </div>
+          `)}
         </div>
       </card-box>
 
@@ -70,15 +153,19 @@ class TheSources extends fetchMixin(DomQuery(LitElement)) {
 
   static get properties() {
     return {
-      sources: { type: Array },
       items: { type: Array },
       active: { type: Boolean, reflect: true },
+      srcConnections: { type: Array },
     };
   }
 
   constructor() {
     super();
-    this.sources = [];
+    this.srcConnections = [];
+
+    this._storeSubscribe([
+      'srcConnections'
+    ]);
   }
 
   startAddSource() {

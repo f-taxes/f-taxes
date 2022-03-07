@@ -20,3 +20,10 @@ func Update(srcCon SourceConnection) error {
 	_, err := col.Upsert(context.Background(), bson.M{"_id": srcCon.ID}, srcCon)
 	return err
 }
+
+func List() ([]SourceConnection, error) {
+	col := DBConn.Collection(COL_SOURCES)
+	list := []SourceConnection{}
+	err := col.Find(context.Background(), bson.M{}).All(&list)
+	return list, err
+}

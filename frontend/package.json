@@ -10,6 +10,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "lit": "^2.2.0",
+    "neffos.js": "^0.1.25",
     "path-to-regexp": "^6.2.0"
   }
 }

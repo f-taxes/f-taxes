@@ -2,11 +2,15 @@ import { css } from 'lit';
 
 export default css`
   :host {
+    --white: #ffffff;
     --text: #C5C6CC;
     --text-dark: #000000;
+    --text-low: #a2a3a7;
+    --bg0: #101540;
     --bg1: #031331;
     --hl1: #46C8AF;
     --hl2: #3C5EC7;
+    --red: #8f2424;
 
     --menu-background: var(--bg1);
     --menu-color: var(--hl1);

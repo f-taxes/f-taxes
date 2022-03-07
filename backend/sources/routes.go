@@ -31,8 +31,28 @@ func RegisterRoutes(app *iris.Application) {
 			return
 		}
 
+		PushToClients("update-src-connections", nil)
+
 		ctx.JSON(Resp{
 			Result: true,
+		})
+	})
+
+	app.Get("/sources/connections/list", func(ctx iris.Context) {
+		list, err := List()
+
+		if err != nil {
+			golog.Errorf("Failed to fetch list of source connections: %v", err)
+			ctx.JSON(Resp{
+				Result: false,
+				Data:   "Failed to fetch list of source connections",
+			})
+			return
+		}
+
+		ctx.JSON(Resp{
+			Result: true,
+			Data:   list,
 		})
 	})
 }
