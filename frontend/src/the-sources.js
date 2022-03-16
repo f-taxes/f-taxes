@@ -7,6 +7,7 @@ This program is available under Apache License Version 2.0
 import '@tp/tp-button/tp-button.js';
 import '@tp/tp-icon/tp-icon.js';
 import '@tp/tp-dialog/tp-dialog.js';
+import '@tp/tp-tooltip/tp-tooltip-wrapper.js';
 import './elements/card-box.js';
 import './elements/the-source-form.js';
 import { LitElement, html, css } from 'lit';
@@ -16,6 +17,7 @@ import { DomQuery } from '@tp/helpers/dom-query.js'
 import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 import { Store } from '@tp/tp-store/store.js';
 import { logos } from './logos.js';
+import { isZero, formatTs } from './helpers/time.js';
 
 class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
   static get styles() {
@@ -31,6 +33,11 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
         header {
           display: flex;
           justify-content: space-between;
+        }
+
+        card-box {
+          max-width: 800px;
+          margin: auto;
         }
 
         .empty {
@@ -107,11 +114,11 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
   }
 
   render() {
-    const { srcConnections } = this;
+    const { srcConnections, settings } = this;
 
     return html`
-      <h2>Add your exchange accounts here</h2>
       <card-box>
+        <h2>Add your exchange accounts here</h2>
         <header>
           <h3>You have ${srcConnections.length} sources set up</h3>
           <tp-button @click=${this.startAddSource}>Add <tp-icon .icon=${icons.add}></tp-icon></tp-button>
@@ -126,14 +133,16 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
               </div>
               <div class="label">
                 <div><label>Label:</label>${con.label}</div>
-                <div><label>Last Fetched:</label>${con.lastFetch || 'Never'}</div>
+                <div><label>Last Fetched:</label>${isZero(con.lastFetched) ? 'Never' : formatTs(con.lastFetched, settings?.dateTimeFormat)}</div>
               </div>
               <div class="key">
                 <div><label>Api Key:</label>${con.key.substring(0, 6)}...</div>
                 <div><label>Api Secret:</label>***</div>
               </div>
               <div class="actions">
-                <tp-icon class="button-like" .icon=${icons.refresh} tooltipValign="top" tooltip="Fetch newest data from this source"></tp-icon>
+                <tp-tooltip-wrapper text="Fetch newest data from this source" tooltipValign="top">
+                  <tp-button class="only-icon" extended @click=${e => this.fetchData(e, con)}><tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
+                </tp-tooltip-wrapper>
               </div>
             </div>
           `)}
@@ -156,6 +165,7 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
       items: { type: Array },
       active: { type: Boolean, reflect: true },
       srcConnections: { type: Array },
+      settings: { type: Object },
     };
   }
 
@@ -164,7 +174,8 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
     this.srcConnections = [];
 
     this.storeSubscribe([
-      'srcConnections'
+      'srcConnections',
+      'settings'
     ]);
   }
 
@@ -181,6 +192,15 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
       this.$.addSourceDialog.close();
     } else {
       this.$.addSourceBtn.showError();
+    }
+  }
+
+  async fetchData(e, con) {
+    const btn = e.target;
+    btn.showSpinner();
+    const resp = await this.post('/source/fetch/all', { srcId: con._id });
+    if (!resp.result) {
+      btn.showError();
     }
   }
 }

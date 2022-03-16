@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/f-taxes/f-taxes/backend/applog"
 	"github.com/f-taxes/f-taxes/backend/config"
 	"github.com/f-taxes/f-taxes/backend/global"
+	"github.com/f-taxes/f-taxes/backend/settings"
 	"github.com/f-taxes/f-taxes/backend/sources"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
@@ -46,6 +48,10 @@ func Start(webAssets embed.FS) {
 	global.ConnectDB(cfg)
 
 	registerFrontend(app, cfg, webAssets)
+
+	applog.Setup()
+	applog.RegisterRoutes(app)
+	settings.RegisterRoutes(app)
 	sources.RegisterRoutes(app)
 
 	global.SetupWebsocketServer(app)

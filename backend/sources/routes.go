@@ -4,6 +4,7 @@ import (
 	. "github.com/f-taxes/f-taxes/backend/global"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func RegisterRoutes(app *iris.Application) {
@@ -24,6 +25,7 @@ func RegisterRoutes(app *iris.Application) {
 
 		if err != nil {
 			golog.Errorf("Failed to save new source connection: %v", err)
+
 			ctx.JSON(Resp{
 				Result: false,
 				Data:   "Failed to save new source connection",
@@ -32,6 +34,22 @@ func RegisterRoutes(app *iris.Application) {
 		}
 
 		PushToClients("update-src-connections", nil)
+
+		ctx.JSON(Resp{
+			Result: true,
+		})
+	})
+
+	app.Post("/source/fetch/all", func(ctx iris.Context) {
+		reqData := struct {
+			SrcID primitive.ObjectID `json:"srcId"`
+		}{}
+
+		if !ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		go FetchAllFromSource(reqData.SrcID)
 
 		ctx.JSON(Resp{
 			Result: true,

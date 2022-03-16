@@ -13,6 +13,10 @@ export default css`
     padding: 0;
   }
 
+  card-box h2 {
+    margin: 0 0 40px 0;
+  }
+
   tp-button tp-icon {
     margin-left: 10px;
     --tp-icon-height: 18px;
@@ -25,8 +29,14 @@ export default css`
     --tp-icon-color: var(--text-dark);
   }
 
+  tp-button.only-icon tp-icon {
+    margin: 0;
+    --tp-icon-height: 24px;
+    --tp-icon-width: 24px;
+  }
+
   tp-icon.button-like {
-    padding: 3px;
+    padding: 8px;
     border-radius: 300px;
     background: var(--hl2);
     --tp-icon-color: var(--text);
@@ -84,6 +94,11 @@ export default css`
     background: #d8d8d8;
   }
 
+  .button-centered {
+    margin-top: 30px;
+    text-align: center;
+  }
+
   .buttons-justified {
     margin-top: 30px;
     display: flex;
@@ -123,5 +138,15 @@ export default css`
 
   textarea:focus {
     border: solid 1px var(--hl1);
+  }
+
+  .hint {
+    font-size: 14px;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0 0 0 10px;
+    list-style-type: none;
   }
 `;

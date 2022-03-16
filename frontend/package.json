@@ -14,9 +14,11 @@
     "@tp/tp-dialog": "^1.0.1",
     "@tp/tp-dropdown": "^1.0.0",
     "@tp/tp-form": "^1.0.0",
-    "@tp/tp-input": "^1.0.3",
+    "@tp/tp-input": "^1.0.5",
+    "@tp/tp-popup": "^1.0.0",
     "@tp/tp-router": "^1.0.2",
     "@tp/tp-store": "^1.1.1",
+    "date-fns": "^2.28.0",
     "lit": "^2.2.0",
     "neffos.js": "^0.1.25",
     "path-to-regexp": "^6.2.0"

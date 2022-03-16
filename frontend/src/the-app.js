@@ -6,6 +6,7 @@ This program is available under Apache License Version 2.0
 
 import '@tp/tp-router/tp-router.js';
 import './the-menu.js';
+import './elements/job-status.js';
 import { LitElement, html, css } from 'lit';
 import theme from './styles/theme.js';
 import { Store } from '@tp/tp-store/store.js';
@@ -48,13 +49,17 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         <tp-route path="*" data="404"></tp-route>
         <tp-route path="/" data="home"></tp-route>
         <tp-route path="/sources" data="sources"></tp-route>
+        <tp-route path="/settings" data="settings"></tp-route>
       </tp-router>
       
       <div class="main">
         <the-menu></the-menu>
         ${page === '404' ? html`<the-404></the-404>` : null }
         ${page === 'sources' ? html`<the-sources .active=${page === 'sources'}></the-sources>` : null }
+        ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
       </div>
+
+      <job-status .ws=${this.ws}></job-status>
     `;
   }
 
@@ -65,6 +70,9 @@ class TheApp extends fetchMixin(Store(LitElement)) {
 
       // Params of the currently active route. Set by the router.
       routeParams: { type: Object },
+
+      // Websocket object
+      ws: { type: Object },
     };
   }
 
@@ -77,6 +85,9 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         ] },
         { match: /sources/, imports: [
           '/assets/the-sources.js'
+        ] },
+        { match: /settings/, imports: [
+          '/assets/the-settings.js'
         ] }
       ]
     );
@@ -85,6 +96,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
   firstUpdated() {
     super.firstUpdated();
     this.fetchSrcConnections();
+    this.fetchSettings();
   }
 
   async connectedCallback() {
@@ -114,6 +126,10 @@ class TheApp extends fetchMixin(Store(LitElement)) {
       if (msg.event === 'update-src-connections') {
         this.fetchSrcConnections();
       }
+
+      if (msg.event === 'app-settings-updated') {
+        this.fetchSettings();
+      }
     })
 
     await ws.connect();
@@ -123,6 +139,11 @@ class TheApp extends fetchMixin(Store(LitElement)) {
   async fetchSrcConnections() {
     const resp = await this.get('/sources/connections/list')
     this.storeWrite('srcConnections', resp.data);
+  }
+
+  async fetchSettings() {
+    const resp = await this.get('/settings/get')
+    this.storeWrite('settings', resp.data);
   }
 }
 

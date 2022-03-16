@@ -27,3 +27,10 @@ func List() ([]SourceConnection, error) {
 	err := col.Find(context.Background(), bson.M{}).All(&list)
 	return list, err
 }
+
+func OneById(srcID primitive.ObjectID) (SourceConnection, error) {
+	srcCon := SourceConnection{}
+	col := DBConn.Collection(COL_SOURCES)
+	err := col.Find(context.Background(), bson.M{"_id": srcID}).One(&srcCon)
+	return srcCon, err
+}
