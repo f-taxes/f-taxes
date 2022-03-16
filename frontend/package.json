@@ -9,6 +9,14 @@
   "author": "trading_peter",
   "license": "Apache-2.0",
   "dependencies": {
+    "@tp/helpers": "^1.0.1",
+    "@tp/tp-button": "^1.0.0",
+    "@tp/tp-dialog": "^1.0.1",
+    "@tp/tp-dropdown": "^1.0.0",
+    "@tp/tp-form": "^1.0.0",
+    "@tp/tp-input": "^1.0.3",
+    "@tp/tp-router": "^1.0.2",
+    "@tp/tp-store": "^1.1.1",
     "lit": "^2.2.0",
     "neffos.js": "^0.1.25",
     "path-to-regexp": "^6.2.0"

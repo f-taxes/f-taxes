@@ -15,6 +15,8 @@ func LoadAppConfig(path string) *koanf.Koanf {
 		"database.server": "localhost",
 		"database.port":   "27017",
 		"database.name":   "f-taxes",
+		"log.path":        "./logs/app_%Y_%m_%d__%H_%M.log",
+		"log.write":       false,
 	}, "."), nil)
 
 	f := file.Provider(path)

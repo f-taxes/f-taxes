@@ -1,4 +1,8 @@
 {
   "addr": ":8000",
-  "debug": true
+  "debug": true,
+  "log": {
+    "path": "./logs/app_%Y_%m_%d__%H_%M.log",
+    "write": false
+  }
 }

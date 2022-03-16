@@ -4,11 +4,11 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
-import './tp-dropdown.js';
-import './tp-form.js';
-import './tp-input.js';
+import '@tp/tp-dropdown/tp-dropdown.js';
+import '@tp/tp-form/tp-form.js';
+import '@tp/tp-input/tp-input.js';
 import { LitElement, html, css } from 'lit';
-import { fetchMixin } from '../helpers/fetch-mixin.js';
+import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 import shared from '../styles/shared.js';
 
 class TheSourceForm extends fetchMixin(LitElement) {

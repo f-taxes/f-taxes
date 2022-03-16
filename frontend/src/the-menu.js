@@ -6,7 +6,7 @@ This program is available under Apache License Version 2.0
 
 import './elements/menu-button.js';
 import { LitElement, html, css } from 'lit';
-import { Store } from './elements/tp-store/tp-store.js'
+import { Store } from '@tp/tp-store/store.js'
 
 class TheMenu extends Store(LitElement) {
   static get styles() {
@@ -65,7 +65,7 @@ class TheMenu extends Store(LitElement) {
 
     this.routeParams = [];
 
-    this._storeSubscribe([
+    this.storeSubscribe([
       'routeParams'
     ]);
   }

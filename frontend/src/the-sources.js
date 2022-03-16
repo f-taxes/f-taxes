@@ -4,17 +4,17 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
-import './elements/tp-button.js';
-import './elements/tp-icon.js';
-import './elements/tp-dialog.js';
+import '@tp/tp-button/tp-button.js';
+import '@tp/tp-icon/tp-icon.js';
+import '@tp/tp-dialog/tp-dialog.js';
 import './elements/card-box.js';
 import './elements/the-source-form.js';
 import { LitElement, html, css } from 'lit';
 import shared from './styles/shared.js';
 import icons from './icons.js';
-import { DomQuery } from './helpers/dom-query.js'
-import { fetchMixin } from './helpers/fetch-mixin.js';
-import { Store } from './elements/tp-store/tp-store.js';
+import { DomQuery } from '@tp/helpers/dom-query.js'
+import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
+import { Store } from '@tp/tp-store/store.js';
 import { logos } from './logos.js';
 
 class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
@@ -163,7 +163,7 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
     super();
     this.srcConnections = [];
 
-    this._storeSubscribe([
+    this.storeSubscribe([
       'srcConnections'
     ]);
   }

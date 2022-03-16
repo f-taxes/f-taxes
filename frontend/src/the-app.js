@@ -4,14 +4,14 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
-import './elements/the-router/the-router.js';
+import '@tp/tp-router/tp-router.js';
 import './the-menu.js';
 import { LitElement, html, css } from 'lit';
 import theme from './styles/theme.js';
-import { Store } from './elements/tp-store/tp-store.js';
-import LazyImports from './helpers/lazy-imports.js'
+import { Store } from '@tp/tp-store/store.js';
+import LazyImports from '@tp/helpers/lazy-imports.js'
 import WS from './helpers/ws.js';
-import { fetchMixin } from './helpers/fetch-mixin.js';
+import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 
 class TheApp extends fetchMixin(Store(LitElement)) {
   static get styles() {
@@ -44,11 +44,11 @@ class TheApp extends fetchMixin(Store(LitElement)) {
     const page = p[0];
 
     return html`
-      <the-router @data-changed=${this.routeDataChanged}>
-        <the-route path="*" data="404"></the-route>
-        <the-route path="/" data="home"></the-route>
-        <the-route path="/sources" data="sources"></the-route>
-      </the-router>
+      <tp-router @data-changed=${this.routeDataChanged}>
+        <tp-route path="*" data="404"></tp-route>
+        <tp-route path="/" data="home"></tp-route>
+        <tp-route path="/sources" data="sources"></tp-route>
+      </tp-router>
       
       <div class="main">
         <the-menu></the-menu>
@@ -95,7 +95,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
   routeDataChanged(e) {
     this.route = e.detail;
     this.routeParams = this.route.split('-');
-    this._storeWrite('routeParams', this.routeParams);
+    this.storeWrite('routeParams', this.routeParams);
     this.importer.import([ this.route ]);
   }
 
@@ -122,7 +122,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
 
   async fetchSrcConnections() {
     const resp = await this.get('/sources/connections/list')
-    this._storeWrite('srcConnections', resp.data);
+    this.storeWrite('srcConnections', resp.data);
   }
 }
 

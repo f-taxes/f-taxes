@@ -4,7 +4,7 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
-import './elements/tp-button.js';
+import '@tp/tp-button/tp-button.js';
 import { LitElement, html, css } from 'lit';
 
 class The404 extends LitElement {

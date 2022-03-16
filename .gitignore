@@ -3,3 +3,5 @@ _mongo/
 frontend-dist/
 node_modules/
 tmp/
+
+logs/

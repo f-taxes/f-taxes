@@ -1,6 +1,8 @@
 package ftx
 
 import (
+	"time"
+
 	. "github.com/f-taxes/f-taxes/backend/global"
 )
 
@@ -28,4 +30,9 @@ func (s *FtxSource) Label() string {
 
 func (s *FtxSource) Type() SourceType {
 	return s.srcType
+}
+
+func (s *FtxSource) DownloadTransactions(from time.Time) <-chan []Transaction {
+	outCh := make(chan []Transaction)
+
 }

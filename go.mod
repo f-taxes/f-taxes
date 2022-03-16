@@ -1,13 +1,15 @@
 module github.com/f-taxes/f-taxes
 
-go 1.17
+go 1.18
 
 require (
 	github.com/kataras/golog v0.1.7
 	github.com/kataras/iris/v12 v12.2.0-alpha8.0.20220301183032-5ce8475f35ad
 	github.com/kataras/neffos v0.0.19
 	github.com/knadh/koanf v1.4.0
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/qiniu/qmgo v1.0.6
+	github.com/shopspring/decimal v1.3.1
 	go.mongodb.org/mongo-driver v1.8.2
 )
 
@@ -38,6 +40,7 @@ require (
 	github.com/iris-contrib/go.uuid v2.0.0+incompatible // indirect
 	github.com/iris-contrib/jade v1.1.4 // indirect
 	github.com/iris-contrib/schema v0.0.6 // indirect
+	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kataras/blocks v0.0.4 // indirect
@@ -46,6 +49,7 @@ require (
 	github.com/kataras/tunnel v0.0.3 // indirect
 	github.com/klauspost/compress v1.14.4 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
+	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mediocregopher/radix/v3 v3.8.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
