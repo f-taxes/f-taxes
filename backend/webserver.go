@@ -12,6 +12,7 @@ import (
 	"github.com/f-taxes/f-taxes/backend/global"
 	"github.com/f-taxes/f-taxes/backend/settings"
 	"github.com/f-taxes/f-taxes/backend/sources"
+	"github.com/f-taxes/f-taxes/backend/transactions"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/view"
@@ -53,6 +54,7 @@ func Start(webAssets embed.FS) {
 	applog.RegisterRoutes(app)
 	settings.RegisterRoutes(app)
 	sources.RegisterRoutes(app)
+	transactions.RegisterRoutes(app)
 
 	global.SetupWebsocketServer(app)
 

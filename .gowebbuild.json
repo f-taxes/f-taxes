@@ -11,6 +11,7 @@
   "ESBuild": {
     "EntryPoints": [
       "./frontend/src/the-app.js",
+      "./frontend/src/the-transactions.js",
       "./frontend/src/the-sources.js",
       "./frontend/src/the-settings.js",
       "./frontend/src/the-404.js"

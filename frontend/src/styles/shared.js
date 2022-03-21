@@ -109,6 +109,10 @@ export default css`
     margin-left: 20px;
   }
 
+  tp-dialog::part(dialog) {
+    box-shadow: var(--popup-shadow);
+  }
+
   tp-dialog h2 {
     margin: 0 0 20px 0;
   }

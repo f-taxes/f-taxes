@@ -6,11 +6,14 @@ export default css`
     --text: #C5C6CC;
     --text-dark: #000000;
     --text-low: #a2a3a7;
-    --bg0: #101540;
+    --bg0: #232a62;
     --bg1: #031331;
+    --bg2: #041f52;
     --hl1: #46C8AF;
     --hl2: #3C5EC7;
-    --red: #8f2424;
+    --red: #bd3434;
+    --amber: #cf9f19;
+    --popup-shadow:  2px 2px 15px rgb(60 126 167 / 33%);
 
     --menu-background: var(--bg1);
     --menu-color: var(--hl1);
@@ -27,5 +30,8 @@ export default css`
     --tp-dialog-border: solid 2px var(--hl1);
     --tp-dialog-border-radius: 10px;
     --tp-dialog-padding: 20px;
+    --tp-popup-background: var(--bg1);
+    --tp-popup-shadow: var(--popup-shadow);
+    --tp-table-icon-color: var(--hl1);
   }
 `;

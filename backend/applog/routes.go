@@ -74,7 +74,7 @@ func RegisterRoutes(app *iris.Application) {
 			}
 		}
 
-		ttl.AddExpiringDownload(filepath.Base(fPath), fPath, time.Minute*30)
+		ttl.AddExpiringDownload(filepath.Base(fPath), fPath, time.Minute*5)
 
 		ctx.JSON(Resp{
 			Result: true,

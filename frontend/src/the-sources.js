@@ -58,6 +58,7 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
           margin-top: 20px;
           background: var(--bg0);
           padding: 10px;
+          border-radius: 4px;
         }
 
         .logo {

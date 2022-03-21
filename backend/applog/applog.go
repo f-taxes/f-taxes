@@ -56,7 +56,6 @@ func Setup() {
 
 	go func() {
 		for msg := range inCh {
-			fmt.Printf("%+v\n", msg)
 			PushToClients("applog", msg)
 			Write(msg)
 		}

@@ -20,16 +20,18 @@ func init() {
 		ticker := time.NewTicker(time.Minute)
 
 		for range ticker.C {
-			ttlLock.Lock()
-			defer ttlLock.Unlock()
-			now := time.Now().UTC()
+			go func() {
+				ttlLock.Lock()
+				defer ttlLock.Unlock()
+				now := time.Now().UTC()
 
-			for n, dl := range aliveDownloads {
-				if now.After(dl.TTL) {
-					os.Remove(dl.Path)
-					delete(aliveDownloads, n)
+				for n, dl := range aliveDownloads {
+					if now.After(dl.TTL) {
+						os.Remove(dl.Path)
+						delete(aliveDownloads, n)
+					}
 				}
-			}
+			}()
 		}
 	}()
 }

@@ -70,7 +70,7 @@ type TransactionDoc struct {
 	FeeC     primitive.Decimal128 `json:"feeC" bson:"feeC"`
 }
 
-func (d TransactionDoc) ToFill() Transaction {
+func (d TransactionDoc) ToTransaction() Transaction {
 	return Transaction{
 		ID:       d.ID,
 		TxID:     d.TxID,

@@ -48,13 +48,15 @@ class TheApp extends fetchMixin(Store(LitElement)) {
       <tp-router @data-changed=${this.routeDataChanged}>
         <tp-route path="*" data="404"></tp-route>
         <tp-route path="/" data="home"></tp-route>
+        <tp-route path="/transactions" data="transactions"></tp-route>
         <tp-route path="/sources" data="sources"></tp-route>
         <tp-route path="/settings" data="settings"></tp-route>
       </tp-router>
       
       <div class="main">
-        <the-menu></the-menu>
+        <the-menu .ws=${this.ws}></the-menu>
         ${page === '404' ? html`<the-404></the-404>` : null }
+        ${page === 'transactions' ? html`<the-transactions .active=${page === 'transactions'}></the-transactions>` : null }
         ${page === 'sources' ? html`<the-sources .active=${page === 'sources'}></the-sources>` : null }
         ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
       </div>
@@ -82,6 +84,9 @@ class TheApp extends fetchMixin(Store(LitElement)) {
       [
         { match: /^404+/, imports: [
           '/assets/the-404.js'
+        ] },
+        { match: /transactions/, imports: [
+          '/assets/the-transactions.js'
         ] },
         { match: /sources/, imports: [
           '/assets/the-sources.js'

@@ -10,6 +10,7 @@ import (
 	. "github.com/f-taxes/f-taxes/backend/global"
 	jobmanager "github.com/f-taxes/f-taxes/backend/jobManager"
 	"github.com/kataras/golog"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -72,17 +73,44 @@ func FetchAllFromSource(srcID primitive.ObjectID) {
 		jobs.Add(jobID, cancelFn)
 
 		txCh, errCh := src.FetchTransactions(ctx, srcCon.LastFetched.Add(-6*time.Hour))
+		newTxCount := 0
 
+		col := DBConn.Collection("ftx")
+
+	loop:
 		for {
 			select {
 			case tx, ok := <-txCh:
 				if !ok {
+					break loop
+				}
+
+				count, err := col.Find(context.Background(), bson.M{"txId": tx.TxID}).Count()
+
+				if err != nil {
+					golog.Errorf("Failed to check for record: %v", err)
 					return
 				}
-				fmt.Printf("%+v\n", tx)
+
+				if count == 0 {
+					newTxCount++
+					col.InsertOne(context.Background(), Transaction{
+						ID:       primitive.NewObjectID(),
+						TxID:     tx.TxID,
+						SourceID: srcCon.ID,
+						Cost:     tx.Price,
+						Amount:   tx.Amount,
+						Fee:      tx.Fee,
+						Ticker:   tx.Ticker,
+						Ts:       tx.Ts,
+						Side:     tx.Side,
+						Quote:    tx.Quote,
+						Base:     tx.Base,
+					}.ToDoc())
+				}
 			case err, ok := <-errCh:
 				if !ok {
-					return
+					break loop
 				}
 
 				PushToClients("job-progress", map[string]string{
@@ -92,9 +120,10 @@ func FetchAllFromSource(srcID primitive.ObjectID) {
 				})
 
 				applog.Send(applog.Error, err.Error(), src.Label())
-				return
 			}
 		}
+
+		applog.Send(applog.Info, fmt.Sprintf("Downloaded %d new transactions", newTxCount), src.Label())
 	}(src, srcCon)
 }
 

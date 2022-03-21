@@ -19,6 +19,9 @@ type SrcTx struct {
 	// Timestamp of the transaction. Make sure the time is UTC!
 	Ts time.Time `json:"ts" bson:"ts"`
 
+	// Price at which the base asset was bought.
+	Price decimal.Decimal `json:"price" bson:"price"`
+
 	// Amount of the transacted base assest.
 	Amount decimal.Decimal `json:"amount" bson:"amount"`
 

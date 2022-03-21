@@ -10,6 +10,7 @@ import (
 	. "github.com/f-taxes/f-taxes/backend/global"
 	"github.com/grishinsana/goftx"
 	"github.com/grishinsana/goftx/models"
+	"github.com/kataras/golog"
 )
 
 // Calls the FTX api to fetch transaction and other data.
@@ -52,7 +53,11 @@ func (s *FtxSource) FetchTransactions(ctx context.Context, since time.Time) (<-c
 	errCh := make(chan error)
 
 	go func(since time.Time) {
-		start := int(time.Time{}.Unix())
+		if since.Year() == 0 {
+			since = time.Now().UTC().Add(-25 * 356 * 20 * time.Hour)
+		}
+
+		start := int(since.Unix())
 		end := int(time.Now().Unix())
 
 		defer func() {
@@ -66,6 +71,7 @@ func (s *FtxSource) FetchTransactions(ctx context.Context, since time.Time) (<-c
 				return
 			default:
 				s.limiter.Wait()
+				golog.Infof("FTX: Fetch fills from %s to %s", time.Unix(int64(start), 0), time.Unix(int64(end), 0))
 				fills, err := s.client.Fills.Fills(&models.FillsParams{
 					StartTime: &start,
 					EndTime:   &end,
@@ -94,6 +100,7 @@ func (s *FtxSource) FetchTransactions(ctx context.Context, since time.Time) (<-c
 						TxID:   fmt.Sprintf("%d", f.ID),
 						Ts:     f.Time.Time,
 						Ticker: f.Market,
+						Price:  f.Price,
 						Amount: f.Size,
 						Quote:  Currency(f.QuoteCurrency),
 						Base:   Currency(f.BaseCurrency),

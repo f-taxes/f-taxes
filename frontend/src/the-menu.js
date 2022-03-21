@@ -7,6 +7,7 @@ This program is available under Apache License Version 2.0
 import '@tp/tp-button/tp-button.js';
 import '@tp/tp-popup/tp-popup.js';
 import './elements/menu-button.js';
+import './the-notifications.js';
 import icons from './icons';
 import { LitElement, html, css } from 'lit';
 import { Store } from '@tp/tp-store/store.js'
@@ -51,7 +52,7 @@ class TheMenu extends Store(LitElement) {
   }
 
   render() {
-    const { items } = this;
+    const { items, notifCount } = this;
     const routeData = this.routeParams.join('-');
 
     return html`
@@ -60,10 +61,10 @@ class TheMenu extends Store(LitElement) {
         <tp-popup>
           <tp-button slot="toggle" class="only-icon">
             <tp-icon .icon=${icons.bell}></tp-icon>
-            <div>1</div>
+            <div>${notifCount || 0}</div>
           </tp-button>
           <div slot="content">
-            <the-notifications></the-notifications>
+            <the-notifications .ws=${this.ws} @notification-count=${e => this.notifCount = e.detail}></the-notifications>
           </div>
         </tp-popup>
         ${items.map(item => html`
@@ -77,13 +78,15 @@ class TheMenu extends Store(LitElement) {
     return {
       items: { type: Array },
       routeParams: { type: Array },
+      ws: { type: Object },
+      notifCount: { type: Number },
     };
   }
 
   constructor() {
     super();
     this.items = [
-      { label: 'Trades', path: '/trades', match: /^trades.*/ },
+      { label: 'Transactions', path: '/transactions', match: /^transactions.*/ },
       { label: 'Sources', path: '/sources', match: /^sources.*/ },
       { label: 'Settings', path: '/settings', match: /^settings.*/ }
     ];

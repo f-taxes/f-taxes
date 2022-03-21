@@ -22,7 +22,7 @@ func Write(msg applogMsg) {
 func List() ([]applogMsg, error) {
 	list := []applogMsg{}
 	col := DBConn.Collection(APPLOG_COL)
-	err := col.Find(context.Background(), bson.M{}).Sort("ts").All(&list)
+	err := col.Find(context.Background(), bson.M{}).Sort("-ts").All(&list)
 
 	if err != nil {
 		return list, err
