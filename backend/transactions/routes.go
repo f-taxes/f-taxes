@@ -1,35 +1,36 @@
 package transactions
 
 import (
-	"context"
-
 	. "github.com/f-taxes/f-taxes/backend/global"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
-func RegisterRoutes(app *iris.Application) {
-	app.Get("/transactions/all", func(ctx iris.Context) {
-		col := DBConn.Collection("ftx")
+type Query struct {
+	Page  int64  `json:"page"`
+	Limit int64  `json:"limit"`
+	Sort  string `json:"sort"`
+}
 
-		txList := []Transaction{}
-		txDocs := []TransactionDoc{}
-		err := col.Find(context.Background(), bson.M{}).All(&txDocs)
+func RegisterRoutes(app *iris.Application) {
+	app.Post("/transactions/page", func(ctx iris.Context) {
+		reqData := Query{}
+
+		if !ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		result, err := Paginate(reqData)
 
 		if err != nil {
-			golog.Errorf("Failed to fetch transactions from database: %v", err)
+			golog.Errorf("Failed to fetch page of transactions: %v", err)
 			ctx.StatusCode(iris.StatusInternalServerError)
 			return
 		}
 
-		for i := range txDocs {
-			txList = append(txList, txDocs[i].ToTransaction())
-		}
-
 		ctx.JSON(Resp{
 			Result: true,
-			Data:   txList,
+			Data:   result,
 		})
 	})
 }

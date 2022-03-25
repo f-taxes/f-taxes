@@ -36,7 +36,7 @@ export default css`
   }
 
   tp-icon.button-like {
-    padding: 8px;
+    padding: 5px;
     border-radius: 300px;
     background: var(--hl2);
     --tp-icon-color: var(--text);

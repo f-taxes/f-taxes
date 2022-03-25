@@ -3,7 +3,9 @@ package global
 import (
 	"time"
 
+	"github.com/kataras/golog"
 	"github.com/shopspring/decimal"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -34,8 +36,8 @@ type Transaction struct {
 	FeeC     decimal.Decimal    `json:"feeC" bson:"feeC"`
 }
 
-func (t Transaction) ToDoc() TransactionDoc {
-	return TransactionDoc{
+func (t Transaction) MarshalBSON() ([]byte, error) {
+	data, err := bson.Marshal(txDoc{
 		ID:       t.ID,
 		TxID:     t.TxID,
 		SourceID: t.SourceID,
@@ -49,12 +51,43 @@ func (t Transaction) ToDoc() TransactionDoc {
 		Side:     t.Side,
 		Fee:      DecimalToMongoDecimal(t.Fee),
 		FeeC:     DecimalToMongoDecimal(t.FeeC),
+	})
+
+	if err != nil {
+		golog.Errorf("Failed to marshal transaction document: %v", err)
 	}
+
+	return data, err
 }
 
-// Used to store Transactions with Decimal128 in Mongodb.
-// Hacky, need a better way to get rid of this intermediate type.
-type TransactionDoc struct {
+func (t *Transaction) UnmarshalBSON(b []byte) error {
+	d := txDoc{}
+	err := bson.Unmarshal(b, &d)
+
+	if err != nil {
+		golog.Errorf("Failed to unmarshal transaction document: %v", err)
+		return err
+	}
+
+	t.ID = d.ID
+	t.TxID = d.TxID
+	t.SourceID = d.SourceID
+	t.Cost = decimal.RequireFromString(d.Cost.String())
+	t.CostC = decimal.RequireFromString(d.CostC.String())
+	t.Amount = decimal.RequireFromString(d.Amount.String())
+	t.Ticker = d.Ticker
+	t.Quote = d.Quote
+	t.Base = d.Base
+	t.Ts = d.Ts
+	t.Side = d.Side
+	t.Fee = decimal.RequireFromString(d.Fee.String())
+	t.FeeC = decimal.RequireFromString(d.FeeC.String())
+
+	return nil
+}
+
+// Intermediary type used to (un-)marshal transactions for mongodb.
+type txDoc struct {
 	ID       primitive.ObjectID   `bson:"_id"`
 	TxID     string               `json:"txId" bson:"txId"`
 	SourceID primitive.ObjectID   `json:"source" bson:"source"`
@@ -68,24 +101,6 @@ type TransactionDoc struct {
 	Side     Side                 `json:"side" bson:"side"`
 	Fee      primitive.Decimal128 `json:"fee" bson:"fee"`
 	FeeC     primitive.Decimal128 `json:"feeC" bson:"feeC"`
-}
-
-func (d TransactionDoc) ToTransaction() Transaction {
-	return Transaction{
-		ID:       d.ID,
-		TxID:     d.TxID,
-		SourceID: d.SourceID,
-		Cost:     decimal.RequireFromString(d.Cost.String()),
-		CostC:    decimal.RequireFromString(d.CostC.String()),
-		Amount:   decimal.RequireFromString(d.Amount.String()),
-		Ticker:   d.Ticker,
-		Quote:    d.Quote,
-		Base:     d.Base,
-		Ts:       d.Ts,
-		Side:     d.Side,
-		Fee:      decimal.RequireFromString(d.Fee.String()),
-		FeeC:     decimal.RequireFromString(d.FeeC.String()),
-	}
 }
 
 func DecimalToMongoDecimal(v decimal.Decimal) primitive.Decimal128 {

@@ -41,7 +41,7 @@ class TpTableItem extends BaseElement {
           align-items: center;
         }
 
-        .cell {
+        [part="cell"] {
           align-self: stretch;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -86,7 +86,7 @@ class TpTableItem extends BaseElement {
   }
 
   renderColumn(column, item) {
-    return html`<div class="cell" part="cell">${item[column.name]}</div>`;
+    return html`<div part="cell">${item[column.name]}</div>`;
   }
 
   async updated(changes) {

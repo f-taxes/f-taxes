@@ -9,6 +9,7 @@ import (
 	"github.com/f-taxes/f-taxes/backend/ftx"
 	. "github.com/f-taxes/f-taxes/backend/global"
 	jobmanager "github.com/f-taxes/f-taxes/backend/jobManager"
+	"github.com/f-taxes/f-taxes/backend/transactions"
 	"github.com/kataras/golog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -75,7 +76,7 @@ func FetchAllFromSource(srcID primitive.ObjectID) {
 		txCh, errCh := src.FetchTransactions(ctx, srcCon.LastFetched.Add(-6*time.Hour))
 		newTxCount := 0
 
-		col := DBConn.Collection("ftx")
+		col := DBConn.Collection(transactions.COL_TRANSACTION)
 
 	loop:
 		for {
@@ -85,7 +86,7 @@ func FetchAllFromSource(srcID primitive.ObjectID) {
 					break loop
 				}
 
-				count, err := col.Find(context.Background(), bson.M{"txId": tx.TxID}).Count()
+				count, err := col.Find(context.Background(), bson.M{"source": srcCon.ID, "txId": tx.TxID}).Count()
 
 				if err != nil {
 					golog.Errorf("Failed to check for record: %v", err)
@@ -106,7 +107,7 @@ func FetchAllFromSource(srcID primitive.ObjectID) {
 						Side:     tx.Side,
 						Quote:    tx.Quote,
 						Base:     tx.Base,
-					}.ToDoc())
+					})
 				}
 			case err, ok := <-errCh:
 				if !ok {

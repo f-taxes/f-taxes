@@ -11,11 +11,12 @@
   "dependencies": {
     "@lit-labs/virtualizer": "^0.7.0-pre.2",
     "@tp/helpers": "^1.0.2",
-    "@tp/tp-button": "^1.0.0",
+    "@tp/tp-button": "^1.0.1",
     "@tp/tp-checkbox": "^1.0.1",
     "@tp/tp-dialog": "^1.0.2",
     "@tp/tp-dropdown": "^1.0.0",
     "@tp/tp-form": "^1.0.0",
+    "@tp/tp-icon": "^1.0.1",
     "@tp/tp-input": "^1.0.5",
     "@tp/tp-popup": "^1.0.1",
     "@tp/tp-router": "^1.0.2",

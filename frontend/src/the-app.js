@@ -144,6 +144,10 @@ class TheApp extends fetchMixin(Store(LitElement)) {
   async fetchSrcConnections() {
     const resp = await this.get('/sources/connections/list')
     this.storeWrite('srcConnections', resp.data);
+
+    const srcMap = new Map();
+    resp.data.forEach(src => srcMap.set(src._id, src));
+    this.storeWrite('srcConnectionsMap', srcMap);
   }
 
   async fetchSettings() {
