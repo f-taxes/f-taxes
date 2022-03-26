@@ -13,14 +13,17 @@ import { Store } from '@tp/tp-store/store';
 class TxRow extends Store(TpTableItem) {
   renderColumn(column, item) {
     if (!item) return;
+    const srcCon = this.srcConnectionsMap.get(item['source']);
+    
     switch (column.name) {
       case 'currency':
         return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
       case 'date':
         return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
       case 'txId':
-        const srcCon = this.srcConnectionsMap.get(item['source']);
         return html`<txid-cell part="cell" .txid=${item[column.name]} .srcCon=${srcCon}></txid-cell>`;
+      case 'source':
+        return html`<div part="cell">${srcCon.label}</div>`;
       default:
         return html`<div part="cell">${item[column.name]}</div>`;
     }

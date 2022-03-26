@@ -62,6 +62,7 @@ class PaginationBar extends LitElement {
         form tp-input {
           width: 75px;
           margin: 0 0 0 10px;
+          text-align: center;
         }
       `
     ];
