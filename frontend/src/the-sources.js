@@ -14,12 +14,24 @@ import { LitElement, html, css } from 'lit';
 import shared from './styles/shared.js';
 import icons from './icons.js';
 import { DomQuery } from '@tp/helpers/dom-query.js'
+import { WsListener } from './helpers/ws-listener.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 import { Store } from '@tp/tp-store/store.js';
 import { logos } from './logos.js';
 import { isZero, formatTs } from './helpers/time.js';
 
-class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
+const mixins = [
+  Store,
+  fetchMixin,
+  DomQuery,
+  WsListener,
+];
+
+const BaseElement = mixins.reduce((baseClass, mixin) => {
+  return mixin(baseClass);
+}, LitElement);
+
+class TheSources extends BaseElement {
   static get styles() {
     return [
       shared,
@@ -100,10 +112,14 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
 
         .actions {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           justify-content: center;
           align-items: center;
           grid-area: actions;
+        }
+
+        .actions > * + * {
+          margin-left: 10px;
         }
 
         .src label {
@@ -130,7 +146,7 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
           ` : srcConnections.map(con => html`
             <div class="src">
               <div class="logo">
-                <img src=${logos[con.source]}></img>
+                <img src=${logos[con.srcName]}></img>
               </div>
               <div class="label">
                 <div><label>Label:</label>${con.label}</div>
@@ -142,7 +158,11 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
               </div>
               <div class="actions">
                 <tp-tooltip-wrapper text="Fetch newest data from this source" tooltipValign="top">
-                  <tp-button class="only-icon" extended @click=${e => this.fetchData(e, con)}><tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
+                  <tp-button id=${'fetch_' + con._id} class="only-icon" extended @click=${e => this.fetchData(e, con)}><tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
+                </tp-tooltip-wrapper>
+
+                <tp-tooltip-wrapper text="Remove source and it's associated data" tooltipValign="top">
+                  <tp-button class="only-icon" extended @click=${() => this.confirmRemoveSrcCon(con)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
                 </tp-tooltip-wrapper>
               </div>
             </div>
@@ -158,6 +178,15 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
           <tp-button id="addSourceBtn" @click=${() => this.shadowRoot.querySelector('the-source-form').submit()} extended>Add</tp-button>
         </div>
       </tp-dialog>
+
+      <tp-dialog id="removeSourceDialog" showClose>
+        <h2>Confirm removal</h2>
+        <p>Do you want to remove the source "${this.selSrcCon.label}"?<br>This will also delete all associated transactions and so on.</p>
+        <div class="buttons-justified">
+          <tp-button dialog-dismiss>Cancel</tp-button>
+          <tp-button class="danger" @click=${() => this.removeSrcCon()}>Yes, Remove</tp-button>
+        </div>
+      </tp-dialog>
     `;
   }
 
@@ -167,12 +196,14 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
       active: { type: Boolean, reflect: true },
       srcConnections: { type: Array },
       settings: { type: Object },
+      selSrcCon: { type: Object },
     };
   }
 
   constructor() {
     super();
     this.srcConnections = [];
+    this.selSrcCon = {};
 
     this.storeSubscribe([
       'srcConnections',
@@ -199,9 +230,35 @@ class TheSources extends Store(fetchMixin(DomQuery(LitElement))) {
   async fetchData(e, con) {
     const btn = e.target;
     btn.showSpinner();
-    const resp = await this.post('/source/fetch/all', { srcId: con._id });
+    const resp = await this.post('/source/fetch/one', { srcId: con._id });
     if (!resp.result) {
       btn.showError();
+    }
+  }
+
+  confirmRemoveSrcCon(con) {
+    this.selSrcCon = con;
+    this.$.removeSourceDialog.show();
+  }
+
+  removeSrcCon() {
+    this.post('/source/remove', { srcId: this.selSrcCon._id });
+    this.$.removeSourceDialog.close();
+  }
+
+  onMsg(msg) {
+    if (msg.event === 'job-progress' && msg.data.srcConId !== undefined) {
+      const { data } = msg;
+      const btn = this.shadowRoot.querySelector('#fetch_' + data.srcConId);
+
+      if (data.progress === '100' && btn) {
+        btn.hideSpinner();
+      } else {
+        if (!btn.hasAttribute('locked')) {
+          btn.showSpinner();
+        }
+      }
+      this.requestUpdate('jobs');
     }
   }
 }

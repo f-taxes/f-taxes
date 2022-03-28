@@ -47,6 +47,25 @@ class TheMenu extends Store(LitElement) {
           font-size: 20px;
           padding-left: 10px;
         }
+
+        .unread {
+          background: var(--red);
+        }
+
+        .wiggle {
+          animation: wiggle;
+          animation-duration: 500ms;
+          animation-iteration-count: 3;
+          animation-timing-function: ease-in-out;
+        }
+
+        @keyframes wiggle {
+          0% {transform: rotate(10deg);}
+          25% {transform: rotate(-10deg);}
+          50% {transform: rotate(20deg);}
+          75% {transform: rotate(-5deg);}
+          100% {transform: rotate(0deg);}
+        }
       `
     ];
   }
@@ -59,12 +78,12 @@ class TheMenu extends Store(LitElement) {
       <div class="title">F-TAXES</div>
       <nav>
         <tp-popup>
-          <tp-button slot="toggle" class="only-icon">
+          <tp-button slot="toggle" class="notifs only-icon" @click=${e => this.shadowRoot.querySelector('.notifs').classList.remove('unread')}>
             <tp-icon .icon=${icons.bell}></tp-icon>
             <div>${notifCount || 0}</div>
           </tp-button>
           <div slot="content">
-            <the-notifications .ws=${this.ws} @notification-count=${e => this.notifCount = e.detail}></the-notifications>
+            <the-notifications .ws=${this.ws} @notification-count=${this.updateNotifCount}></the-notifications>
           </div>
         </tp-popup>
         ${items.map(item => html`
@@ -100,6 +119,22 @@ class TheMenu extends Store(LitElement) {
 
   nav(item) {
     this.dispatchEvent(new CustomEvent('trigger-router', { detail: { path: item.path }, bubbles: true, composed: true }));
+  }
+
+  updateNotifCount(e) {
+    const newCount = e.detail;
+
+    if (newCount > this.notifCount) {
+      const btn = this.shadowRoot.querySelector('.notifs');
+      btn.classList.add('wiggle');
+      btn.classList.add('unread');
+      
+      setTimeout(() => {
+        btn.classList.remove('wiggle');
+      }, 10000);
+    }
+
+    this.notifCount = newCount;
   }
 }
 

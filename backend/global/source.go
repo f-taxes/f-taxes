@@ -18,7 +18,7 @@ type Source interface {
 	Label() string
 	Type() SourceType
 	ID() string
-	FetchTransactions(context.Context, time.Time) (<-chan SrcTx, <-chan error)
+	FetchTransactions(ctx context.Context, since time.Time) (<-chan SrcTx, <-chan error)
 }
 
 type SourceInfo struct {
@@ -30,8 +30,8 @@ type SourceInfo struct {
 type SourceConnection struct {
 	ID         primitive.ObjectID `bson:"_id" json:"_id"`
 	Label      string             `bson:"label" json:"label"`
-	Note       string             `bson:"note" json:"note"`
-	SourceID   string             `bson:"sourceId" json:"source"`
+	Notes      string             `bson:"notes" json:"notes"`
+	SrcName    string             `bson:"srcName" json:"srcName"`
 	ApiKey     string             `bson:"apiKey" json:"key"`
 	ApiSecret  string             `bson:"apiSecret" json:"secret"`
 	Subaccount string             `bson:"subaccount" json:"subaccount"`

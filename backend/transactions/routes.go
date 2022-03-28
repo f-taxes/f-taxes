@@ -7,9 +7,9 @@ import (
 )
 
 type Query struct {
-	Page  int64  `json:"page"`
-	Limit int64  `json:"limit"`
-	Sort  string `json:"sort"`
+	Page  int64  `json:"page" bson:"page"`
+	Limit int64  `json:"limit" bson:"limit"`
+	Sort  string `json:"sort" bson:"sort"`
 }
 
 func RegisterRoutes(app *iris.Application) {

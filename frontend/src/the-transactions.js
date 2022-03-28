@@ -4,6 +4,8 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
+import '@tp/tp-popup/tp-popup.js';
+import './elements/column-manager.js';
 import './elements/pagination-bar.js';
 import './elements/tx-row.js';
 import './elements/tp-table/tp-table.js';
@@ -11,8 +13,10 @@ import { LitElement, html, css } from 'lit';
 import shared from './styles/shared';
 import Pagination from './helpers/pagination.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin';
+import icons from './icons.js';
+import { Store } from '@tp/tp-store/store';
 
-class TheTransactions extends fetchMixin(LitElement) {
+class TheTransactions extends fetchMixin(Store(LitElement)) {
   static get styles() {
     return [
       shared,
@@ -61,8 +65,12 @@ class TheTransactions extends fetchMixin(LitElement) {
           overflow-y: auto;
         }
 
-        pagination-bar {
-          
+        .tools {
+          padding: 10px 32px 10px 20px;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
         }
       `
     ];
@@ -72,6 +80,15 @@ class TheTransactions extends fetchMixin(LitElement) {
     const { items, columns, pageStats } = this;
 
     return html`
+      <div class="tools">
+        <div></div>
+        <div>
+          <tp-popup halign="right">
+            <tp-icon slot="toggle" tooltip="Edit columns" .icon=${icons.columns}></tp-icon>
+            <column-manager slot="content" settingsKey="transactions" .columns=${columns}></column-manager>
+          </tp-popup>
+        </div>
+      </div>
       <tp-table .columns=${columns} .items=${items} @sorting-changed=${e => this.sortingChanged(e)}></tp-table>
       <pagination-bar .stats=${pageStats} @next-page=${this.nextPage} @prev-page=${this.prevPage} @goto-page=${this.goto}></pagination-bar>
     `;
@@ -81,34 +98,48 @@ class TheTransactions extends fetchMixin(LitElement) {
     return {
       items: { type: Array },
       pageStats: { type: Object },
+      columns: { type: Array },
     };
   }
 
   constructor() {
     super();
     this.pagination = new Pagination(1, 5000, 'ts', 'asc');
+
+    this.storeSubscribe([
+      'settings'
+    ]);
+  }
+
+  shouldUpdate(changes) {
+    super.shouldUpdate(changes);
+    return this.settings !== undefined;
   }
 
   firstUpdated() {
     super.firstUpdated();
 
-    this.columns = [
-      { name: 'base', label: 'Base', visible: true, width: '100px' },
-      { name: 'amount', label: 'Amount', visible: true, width: '100px' },
-      { name: 'cost', label: 'Cost', visible: true, width: '100px' },
-      { name: 'costC', label: 'Cost C', visible: true, width: '100px' },
-      { name: 'fee', label: 'Fee', visible: true, width: '163px' },
-      { name: 'feeC', label: 'Fee C', visible: true, width: '100px' },
-      { name: 'quote', label: 'Quote', visible: true, width: '100px' },
-      { name: 'side', label: 'Side', visible: true, width: '97px' },
-      { name: 'source', label: 'Source', visible: true, width: '203px' },
-      { name: 'ticker', label: 'Ticker', visible: true, width: '117px' },
-      { name: 'ts', label: 'Date', type: 'date', visible: true, width: '223px' },
-      { name: 'txId', label: 'Tx-ID', visible: true, width: '100px' }
-    ];
-
+    this.columns = this.settings.transactions.columns;
     this.shadowRoot.querySelector('tp-table').renderItem = this.renderItem.bind(this);
     this.fetchTransactions();
+  }
+
+  storeUpdated(key, newValue, targetProperty) {
+    super.storeUpdated(key, newValue, targetProperty);
+  
+    if (key === 'settings') {
+      this.columns = this.settings.transactions.columns;
+      const pagS = this.settings.transactions.pagination;
+      this.pagination.setPage(pagS.page);
+
+      if (pagS.sort[0] === '-') {
+        this.pagination.updateSort(pagS.sort.substring(1), 'desc');
+      } else {
+        this.pagination.updateSort(pagS.sort, 'asc');
+      }
+      
+      this.pagination.setLimit(pagS.limit);
+    }
   }
 
   renderItem(item, idx, columns) {
@@ -130,6 +161,8 @@ class TheTransactions extends fetchMixin(LitElement) {
     const resp = await this.post('/transactions/page', this.pagination.value, true);
     this.items = resp.data.items;
     this.pageStats = resp.data;
+    this.settings.transactions.pagination = this.pagination.value;
+    this.post('/settings/save', this.settings);
   }
 
   sortingChanged(e) {

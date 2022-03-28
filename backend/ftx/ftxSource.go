@@ -18,7 +18,7 @@ import (
 type FtxSource struct {
 	id      string
 	label   string
-	srcType SourceType
+	srcName SourceType
 	client  *goftx.Client
 	limiter *rate.RateLimiter
 }
@@ -30,7 +30,7 @@ func NewFtxSource(srcCon *SourceConnection) *FtxSource {
 	return &FtxSource{
 		id:      "ftx",
 		label:   fmt.Sprintf("FTX: %s", srcCon.Label),
-		srcType: EXCHANGE,
+		srcName: EXCHANGE,
 		client:  client,
 		limiter: limiter,
 	}
@@ -45,7 +45,7 @@ func (s *FtxSource) Label() string {
 }
 
 func (s *FtxSource) Type() SourceType {
-	return s.srcType
+	return s.srcName
 }
 
 func (s *FtxSource) FetchTransactions(ctx context.Context, since time.Time) (<-chan SrcTx, <-chan error) {

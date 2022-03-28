@@ -30,7 +30,7 @@ class TheSourceForm extends fetchMixin(LitElement) {
     return html`
       <tp-form>
         <form>
-          <tp-dropdown name="source" .default=${firstSource.id} .items=${this.availSources.map(src => ({ value: src.id, label: src.label }))} @value-changed=${e => this.selSource = e.detail}></tp-dropdown>
+          <tp-dropdown name="srcName" .default=${firstSource.id} .items=${this.availSources.map(src => ({ value: src.id, label: src.label }))} @value-changed=${e => this.selSource = e.detail}></tp-dropdown>
 
           <label>Label</label>
           <tp-input name="label" required errorMessage="Required">

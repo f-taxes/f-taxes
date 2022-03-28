@@ -57,7 +57,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         <the-menu .ws=${this.ws}></the-menu>
         ${page === '404' ? html`<the-404></the-404>` : null }
         ${page === 'transactions' ? html`<the-transactions .active=${page === 'transactions'}></the-transactions>` : null }
-        ${page === 'sources' ? html`<the-sources .active=${page === 'sources'}></the-sources>` : null }
+        ${page === 'sources' ? html`<the-sources .active=${page === 'sources'} .ws=${this.ws}></the-sources>` : null }
         ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
       </div>
 

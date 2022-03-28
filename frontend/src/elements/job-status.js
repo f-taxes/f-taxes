@@ -22,6 +22,7 @@ class JobStatus extends WsListener(LitElement) {
 
         .panel {
           background: var(--card-box-background);
+          box-shadow: var(--tp-popup-shadow, none);
           border-radius: 4px;
           z-index: 800;
           margin-top: 20px;

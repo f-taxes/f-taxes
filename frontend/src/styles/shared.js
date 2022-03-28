@@ -35,6 +35,10 @@ export default css`
     --tp-icon-width: 24px;
   }
 
+  tp-button.danger {
+    background: var(--red);
+  }
+
   tp-icon.button-like {
     padding: 5px;
     border-radius: 300px;
@@ -152,5 +156,27 @@ export default css`
     margin: 0;
     padding: 0 0 0 10px;
     list-style-type: none;
+  }
+
+  tp-cmd-item {
+    color: var(--text-dark);
+  }
+
+  tp-cmd-item:hover {
+    background: var(--hl1);
+  }
+
+  .scrollbar::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    background: var(--bg0);
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--hl1);
+    outline: none;
+    border-radius: 4px;
   }
 `;

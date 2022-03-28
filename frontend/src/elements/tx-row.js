@@ -6,6 +6,7 @@ This program is available under Apache License Version 2.0
 
 import TpTableItem from './tp-table/tp-table-item';
 import './cells/txid-cell.js';
+import './cells/src-cell.js';
 import { formatTs } from '../helpers/time.js';
 import { html } from 'lit';
 import { Store } from '@tp/tp-store/store';
@@ -13,17 +14,19 @@ import { Store } from '@tp/tp-store/store';
 class TxRow extends Store(TpTableItem) {
   renderColumn(column, item) {
     if (!item) return;
-    const srcCon = this.srcConnectionsMap.get(item['source']);
+    const srcCon = this.srcConnectionsMap.get(item['srcConId']);
     
     switch (column.name) {
       case 'currency':
         return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
-      case 'date':
+      case 'ts':
         return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
       case 'txId':
         return html`<txid-cell part="cell" .txid=${item[column.name]} .srcCon=${srcCon}></txid-cell>`;
-      case 'source':
+      case 'srcCon':
         return html`<div part="cell">${srcCon.label}</div>`;
+      case 'srcName':
+        return html`<src-cell part="cell" .srcName=${item.srcName}></src-cell>`;
       default:
         return html`<div part="cell">${item[column.name]}</div>`;
     }

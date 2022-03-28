@@ -28,9 +28,15 @@ func List() ([]SourceConnection, error) {
 	return list, err
 }
 
-func OneById(srcID primitive.ObjectID) (SourceConnection, error) {
+func OneById(srcConID primitive.ObjectID) (SourceConnection, error) {
 	srcCon := SourceConnection{}
 	col := DBConn.Collection(COL_SOURCES)
-	err := col.Find(context.Background(), bson.M{"_id": srcID}).One(&srcCon)
+	err := col.Find(context.Background(), bson.M{"_id": srcConID}).One(&srcCon)
 	return srcCon, err
+}
+
+func RemoveById(srcConID primitive.ObjectID) error {
+	col := DBConn.Collection(COL_SOURCES)
+	err := col.RemoveId(context.Background(), srcConID)
+	return err
 }

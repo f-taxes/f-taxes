@@ -23,7 +23,8 @@ const (
 type Transaction struct {
 	ID       primitive.ObjectID `bson:"_id"`
 	TxID     string             `json:"txId" bson:"txId"`
-	SourceID primitive.ObjectID `json:"source" bson:"source"`
+	SrcName  string             `json:"srcName" bson:"srcName"`
+	SrcConID primitive.ObjectID `json:"srcConId" bson:"srcConId"`
 	Cost     decimal.Decimal    `json:"cost" bson:"cost"`
 	CostC    decimal.Decimal    `json:"costC" bson:"costC"`
 	Amount   decimal.Decimal    `json:"amount" bson:"amount"`
@@ -40,7 +41,8 @@ func (t Transaction) MarshalBSON() ([]byte, error) {
 	data, err := bson.Marshal(txDoc{
 		ID:       t.ID,
 		TxID:     t.TxID,
-		SourceID: t.SourceID,
+		SrcName:  t.SrcName,
+		SrcConID: t.SrcConID,
 		Cost:     DecimalToMongoDecimal(t.Cost),
 		CostC:    DecimalToMongoDecimal(t.CostC),
 		Amount:   DecimalToMongoDecimal(t.Amount),
@@ -71,7 +73,8 @@ func (t *Transaction) UnmarshalBSON(b []byte) error {
 
 	t.ID = d.ID
 	t.TxID = d.TxID
-	t.SourceID = d.SourceID
+	t.SrcConID = d.SrcConID
+	t.SrcName = d.SrcName
 	t.Cost = decimal.RequireFromString(d.Cost.String())
 	t.CostC = decimal.RequireFromString(d.CostC.String())
 	t.Amount = decimal.RequireFromString(d.Amount.String())
@@ -90,7 +93,8 @@ func (t *Transaction) UnmarshalBSON(b []byte) error {
 type txDoc struct {
 	ID       primitive.ObjectID   `bson:"_id"`
 	TxID     string               `json:"txId" bson:"txId"`
-	SourceID primitive.ObjectID   `json:"source" bson:"source"`
+	SrcName  string               `json:"srcName" bson:"srcName"`
+	SrcConID primitive.ObjectID   `json:"srcConId" bson:"srcConId"`
 	Cost     primitive.Decimal128 `json:"cost" bson:"cost"`
 	CostC    primitive.Decimal128 `json:"costC" bson:"costC"`
 	Amount   primitive.Decimal128 `json:"amount" bson:"amount"`

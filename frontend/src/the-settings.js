@@ -99,6 +99,8 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
   async saveSettings(e) {
     const btn = e.target.submitButton;
     btn.showSpinner();
+
+    this.settings = Object.assign(this.settings, e.detail);
     const resp = await this.post('/settings/save', e.detail);
 
     if (resp.result) {

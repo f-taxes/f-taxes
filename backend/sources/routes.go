@@ -40,7 +40,7 @@ func RegisterRoutes(app *iris.Application) {
 		})
 	})
 
-	app.Post("/source/fetch/all", func(ctx iris.Context) {
+	app.Post("/source/fetch/one", func(ctx iris.Context) {
 		reqData := struct {
 			SrcID primitive.ObjectID `json:"srcId"`
 		}{}
@@ -50,6 +50,22 @@ func RegisterRoutes(app *iris.Application) {
 		}
 
 		go FetchAllFromSource(reqData.SrcID)
+
+		ctx.JSON(Resp{
+			Result: true,
+		})
+	})
+
+	app.Post("/source/remove", func(ctx iris.Context) {
+		reqData := struct {
+			SrcID primitive.ObjectID `json:"srcId"`
+		}{}
+
+		if !ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		RemoveSource(reqData.SrcID)
 
 		ctx.JSON(Resp{
 			Result: true,
