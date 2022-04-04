@@ -18,9 +18,9 @@ class TxRow extends Store(TpTableItem) {
     
     switch (column.name) {
       case 'currency':
-        return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
+        return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat, this.settings?.timeZone)}</div>`;
       case 'ts':
-        return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat)}</div>`;
+        return html`<div part="cell">${formatTs(item[column.name], this.settings?.dateTimeFormat, this.settings?.timeZone)}</div>`;
       case 'txId':
         return html`<txid-cell part="cell" .txid=${item[column.name]} .srcCon=${srcCon}></txid-cell>`;
       case 'srcCon':

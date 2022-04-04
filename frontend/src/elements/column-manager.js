@@ -108,7 +108,6 @@ class ColumnManager extends Store(fetchMixin(LitElement)) {
   }
 
   shouldUpdate(changes) {
-    console.log(this.columns);
     if (changes.has('settingsKey') || changes.has('columns') || changes.has('settings')) {
       if (this.settingsKey && this.settings && this.columns) {
         this.colSettings = new Map();

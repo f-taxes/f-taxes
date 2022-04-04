@@ -7,11 +7,13 @@ This program is available under Apache License Version 2.0
 import '@tp/tp-button/tp-button.js';
 import '@tp/tp-form/tp-form.js';
 import '@tp/tp-input/tp-input.js';
+import '@tp/tp-dropdown/tp-dropdown.js';
 import './elements/card-box.js';
 import shared from './styles/shared.js';
 import { LitElement, html, css } from 'lit';
 import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 import { Store } from '@tp/tp-store/store';
+import { Timezones } from './helpers/tz.js';
 
 class TheSettings extends fetchMixin(Store(LitElement)) {
   static get styles() {
@@ -49,6 +51,11 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
         <tp-form @submit=${this.saveSettings}>
           <form>
             <div class="settings-grid">
+              <label>Time Zone</label>
+              <div>
+                <tp-dropdown name="timeZone" .value=${settings?.timeZone} .default=${Intl.DateTimeFormat().resolvedOptions().timeZone} filterable filterPlaceholder="Search" .items=${Timezones}></tp-dropdown>
+              </div>
+
               <label>Date & Time Format</label>
               <div>
                 <tp-input name="dateTimeFormat" .value=${settings?.dateTimeFormat} autoValidate .validator=${this.validateDTFormat} errorMessage="Invalid format">
@@ -101,7 +108,7 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
     btn.showSpinner();
 
     this.settings = Object.assign(this.settings, e.detail);
-    const resp = await this.post('/settings/save', e.detail);
+    const resp = await this.post('/settings/save', this.settings);
 
     if (resp.result) {
       btn.showSuccess();

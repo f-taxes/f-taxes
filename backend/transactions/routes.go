@@ -14,7 +14,11 @@ type Query struct {
 
 func RegisterRoutes(app *iris.Application) {
 	app.Post("/transactions/page", func(ctx iris.Context) {
-		reqData := Query{}
+		reqData := Query{
+			Page:  1,
+			Sort:  "ts",
+			Limit: 2000,
+		}
 
 		if !ReadJSON(ctx, &reqData) {
 			return

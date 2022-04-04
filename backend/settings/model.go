@@ -30,6 +30,7 @@ type UserSettings struct {
 	ID             primitive.ObjectID  `bson:"_id" json:"-"`
 	DateTimeFormat string              `bson:"dateTimeFormat" json:"dateTimeFormat"`
 	Transactions   TransactionSettings `bson:"transactions" json:"transactions"`
+	TimeZone       string              `bson:"timeZone" json:"timeZone"`
 }
 
 func ensureDefaultSettings() {

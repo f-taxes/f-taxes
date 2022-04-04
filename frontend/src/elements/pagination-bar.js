@@ -64,6 +64,16 @@ class PaginationBar extends LitElement {
           margin: 0 0 0 10px;
           text-align: center;
         }
+
+        .counter {
+          text-align: left;
+          display: grid;
+          grid-template-columns: auto auto;
+        }
+
+        .counter > div {
+          margin: 0;
+        }
       `
     ];
   }
@@ -74,8 +84,9 @@ class PaginationBar extends LitElement {
     return html`
       <tp-form @submit=${this.submit}>
         <form>
-          <div>
-            Showing ${stats.filteredCount} of ${stats.totalCount}
+          <div class="counter">
+            <div>Showing:</div><div>${stats.filteredCount}</div>
+            <div>Total:</div><div>${stats.totalCount}</div>
           </div>
           <div class="page-counter">
             Page ${stats.page} of ${stats.totalPages}

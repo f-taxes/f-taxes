@@ -9,12 +9,15 @@ import './elements/column-manager.js';
 import './elements/pagination-bar.js';
 import './elements/tx-row.js';
 import './elements/tp-table/tp-table.js';
+import './elements/tp-filter-builder/tp-filter-builder.js';
+import './elements/tp-date-input.js';
 import { LitElement, html, css } from 'lit';
 import shared from './styles/shared';
 import Pagination from './helpers/pagination.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin';
 import icons from './icons.js';
 import { Store } from '@tp/tp-store/store';
+import { getLocalDateFormat } from './helpers/time.js';
 
 class TheTransactions extends fetchMixin(Store(LitElement)) {
   static get styles() {
@@ -72,16 +75,28 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
           justify-content: space-between;
           align-items: center;
         }
+
+        tp-filter-builder {
+          --tp-filter-builder-bg: var(--bg0);
+          --tp-filter-builder-color: var(--text);
+          --tp-filter-builder-list-color: var(--text-dark);
+          --tp-filter-builder-icon-color: var(--text);
+          --tp-filter-builder-bg-hover: var(--hl1);
+          --tp-filter-builder-color-hover: var(--text-dark);
+          --tp-filter-builder-input-bg: var(--bg1);
+        }
       `
     ];
   }
 
   render() {
-    const { items, columns, pageStats } = this;
+    const { items, columns, pageStats, filterFields, defaultOptions } = this;
 
     return html`
       <div class="tools">
-        <div></div>
+        <div>
+          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions}></tp-filter-builder>
+        </div>
         <div>
           <tp-popup halign="right">
             <tp-icon slot="toggle" tooltip="Edit columns" .icon=${icons.columns}></tp-icon>
@@ -99,6 +114,8 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
       items: { type: Array },
       pageStats: { type: Object },
       columns: { type: Array },
+      filterFields: { type: Array },
+      defaultOptions: { type: Object },
     };
   }
 
@@ -109,6 +126,15 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
     this.storeSubscribe([
       'settings'
     ]);
+
+    this.filterFields = [
+      { name: "ts", label: "Date", type: "date" },
+      { name: "source", label: "Source", type: "text" },
+      { name: "ticker", label: "Ticker", type: "text" },
+      { name: "base", label: "Base", type: "text" },
+      { name: "quote", label: "Quote", type: "text" },
+      { name: "side", label: "Side", type: "enum", enums: [ { value: "buy", label: "Buy" }, { value: "sell", label: "Sell" } ] }
+    ];
   }
 
   shouldUpdate(changes) {
@@ -139,6 +165,10 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
       }
       
       this.pagination.setLimit(pagS.limit);
+
+      this.defaultOptions = {
+        date: { dateFormat: getLocalDateFormat(), timeZone: this.settings.timeZone }
+      };
     }
   }
 

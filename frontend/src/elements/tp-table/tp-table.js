@@ -207,8 +207,13 @@ export class TpTable extends DomQuery(LitElement) {
         ` : null}
         <div class="col-label">${label}</div>
         <div class="width-handle" part="width-handle"><div part="width-handle-bar"></div></div>
+        ${this.renderColumnHeaderAddons(column)}
       </a>
     `;
+  }
+
+  renderColumnHeaderAddons(column) {
+    return null;
   }
 
   static get downIcon() {

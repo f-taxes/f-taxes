@@ -3,11 +3,14 @@ module github.com/f-taxes/f-taxes
 go 1.18
 
 require (
+	github.com/beefsack/go-rate v0.0.0-20220214233405-116f4ca011a0
+	github.com/grishinsana/goftx v1.2.1
 	github.com/kataras/golog v0.1.7
 	github.com/kataras/iris/v12 v12.2.0-alpha8.0.20220301183032-5ce8475f35ad
 	github.com/kataras/neffos v0.0.19
 	github.com/knadh/koanf v1.4.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/nats-io/nats-server/v2 v2.7.4
 	github.com/qiniu/qmgo v1.0.6
 	github.com/shopspring/decimal v1.3.1
 	go.mongodb.org/mongo-driver v1.8.2
@@ -21,7 +24,6 @@ require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect
-	github.com/beefsack/go-rate v0.0.0-20220214233405-116f4ca011a0 // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2/v4 v4.0.2 // indirect
@@ -54,12 +56,14 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mediocregopher/radix/v3 v3.8.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
+	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d // indirect
+	github.com/nats-io/jwt/v2 v2.2.1-0.20220113022732-58e87895b296 // indirect
+	github.com/nats-io/nats.go v1.13.1-0.20220308171302-2f2f6968e98d // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

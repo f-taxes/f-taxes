@@ -58,10 +58,12 @@ export default css`
     border: var(--input-border);
   }
 
+  tp-date-input[focused]::part(wrap),
   tp-input[focused]::part(wrap) {
     border: solid 1px var(--hl1);
   }
 
+  tp-date-input[invalid]::part(wrap),
   tp-input[invalid]::part(wrap) {
     border: solid 1px var(--red);
   }
