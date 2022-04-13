@@ -26,10 +26,12 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
   }
 
   render() {
-    const { field, value, fields, filter, lists, popupSelector, from, to } = this;
+    const { field, fields, filter, lists, popupSelector } = this;
     const dateFormat = this.options.dateFormat;
     const tz = this.options.timeZone || 'UTC';
-    console.log(this.options);
+    const { from, to } = this.value || {};
+
+    console.log(this.value);
 
     return html`
       <tp-form>
@@ -40,9 +42,9 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
             <tp-dropdown class="field" name="field" .default=${(fields[0] || {}).value} .value=${field} .items=${fields} @value-changed=${e => this.updateValue('selection', e.detail)}></tp-dropdown>
           `}
           <tp-dropdown class="filter" name="filter" .default=${(lists.filter[0] || {}).value} .value=${filter} .items=${lists.filter} @value-changed=${e => this.updateValue('filter', e.detail)}></tp-dropdown>
-          <tp-date-input minYear="100" class="from" .format=${dateFormat} .timeZone=${tz} value=${from}></tp-date-input>
+          <tp-date-input name="from" minYear="100" class="from" .format=${dateFormat} .timeZone=${tz} value=${from} @value-changed=${e => this.from = e.detail}></tp-date-input>
           ${filter === 'between' ? html`
-            <tp-date-input minYear="100" .format=${dateFormat} value=${to} .timeZone=${tz}></tp-date-input>
+            <tp-date-input name="to" minYear="100" .format=${dateFormat} value=${to} .timeZone=${tz} @value-changed=${e => this.to = e.detail}></tp-date-input>
           ` : null}
           <div class="remove" @click=${this._removeFilterField}>
             <tp-icon .icon=${TpFilterBuilderDate.iconRemove} tooltip="Remove this filter"></tp-icon>
@@ -67,7 +69,7 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
 
   constructor() {
     super();
-    this.type = 'text';
+    this.type = 'date';
 
     this.lists = {
       filter: [
@@ -91,18 +93,17 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
 
   _datesChanged() {
     if (this.filter === 'between') {
-      if (typeof this.value === 'object' && this.value !== null) {
-        this.value.from = this.from;
-        this.value.to = this.to;
-      } else {
-        this.value = {
-          from: this.from,
-          to: this.to
-        };
-      }
+      this.value = {
+        from: this.from,
+        to: this.to
+      };
     } else {
-      this.value = this.from;
+      this.value = {
+        from: this.from
+      };
     }
+
+    this.updateValue('value', this.value);
   }
 
   _setDates(value) {

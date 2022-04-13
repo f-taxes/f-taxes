@@ -71,16 +71,16 @@ class TpDateInput extends EventHelpers(ControlState(FormElement(LitElement))) {
 
     return html`
       <div class="wrap" part="wrap">
-        <tp-input .value=${this._input0} @input=${e => this._input0 = e.target.value} @change=${this._inputChanged} .validator=${this._setValidator(0)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
-          <input type="text" placeholder=${this._setPlaceholder(0)}>
+        <tp-input .value=${this._input0} .validator=${this._setValidator(0)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
+          <input type="text" placeholder=${this._setPlaceholder(0)} @input=${e => this._input0 = e.target.value}>
         </tp-input>
         <div>${delimiter}</div>
-        <tp-input .value=${this._input1} @input=${e => this._input1 = e.target.value} @change=${this._inputChanged} .validator=${this._setValidator(1)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
-          <input type="text" placeholder=${this._setPlaceholder(1)}>
+        <tp-input .value=${this._input1} .validator=${this._setValidator(1)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
+          <input type="text" placeholder=${this._setPlaceholder(1)} @input=${e => this._input1 = e.target.value}>
         </tp-input>
         <div>${delimiter}</div>
-        <tp-input class="bigger" .value=${this._input2} @input=${e => this._input2 = e.target.value} @change=${this._inputChanged} .validator=${this._setValidator(2)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
-          <input type="text" placeholder=${this._setPlaceholder(2)}>
+        <tp-input class="bigger" .value=${this._input2} .validator=${this._setValidator(2)} allowed-pattern="[0-9]" .auto-validate=${autoValidate} .readonly=${readonly} .required=${required}>
+          <input type="text" placeholder=${this._setPlaceholder(2)} @input=${e => this._input2 = e.target.value}>
         </tp-input>
       </div>
       ${errorMessage ? html`
@@ -133,6 +133,9 @@ class TpDateInput extends EventHelpers(ControlState(FormElement(LitElement))) {
 
       _setValidator: { type: Array },
       _inputAssign: { type: Array },
+      _input0: { type: String },
+      _input1: { type: String },
+      _input2: { type: String },
     };
   }
 
@@ -150,10 +153,7 @@ class TpDateInput extends EventHelpers(ControlState(FormElement(LitElement))) {
   }
 
   get inputs() {
-    if (!this._inputs) {
-      this._inputs = this.shadowRoot.querySelectorAll('tp-input');
-    }
-    return this._inputs;
+    return this.shadowRoot.querySelectorAll('tp-input');
   }
 
   shouldUpdate(changes) {
@@ -163,6 +163,12 @@ class TpDateInput extends EventHelpers(ControlState(FormElement(LitElement))) {
 
     if (changes.has('value')) {
       this._onValueChanged();
+    }
+
+    if (changes.has('_input0') || changes.has('_input1') || changes.has('_input2')) {
+      setTimeout(() => {
+        this._inputChanged();
+      });
     }
 
     return this._inputAssign.length > 0;
@@ -272,6 +278,7 @@ class TpDateInput extends EventHelpers(ControlState(FormElement(LitElement))) {
       this.date = this.timeZone ? zonedTimeToUtc(date, this.timeZone) : date;
       this.value = this.date.toISOString();
       this.invalid = false;
+      this.dispatchEvent(new CustomEvent('value-changed', { detail: this.value, bubbles: true, composed: true }));
     } else {
       this.inputs[0].invalid = true;
       this.inputs[1].invalid = true;

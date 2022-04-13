@@ -104,7 +104,7 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
           </tp-popup>
         </div>
       </div>
-      <tp-table .columns=${columns} .items=${items} @sorting-changed=${e => this.sortingChanged(e)}></tp-table>
+      <tp-table .columns=${columns} .items=${items} @sorting-changed=${e => this.sortingChanged(e)} @column-width-changed=${e => this.colWidthChanged(e)}></tp-table>
       <pagination-bar .stats=${pageStats} @next-page=${this.nextPage} @prev-page=${this.prevPage} @goto-page=${this.goto}></pagination-bar>
     `;
   }
@@ -198,6 +198,11 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
   sortingChanged(e) {
     this.pagination.updateSort(e.detail.column, e.detail.direction);
     this.fetchTransactions();
+  }
+
+  colWidthChanged(e) {
+    this.settings.transactions.columns = e.detail;
+    this.post('/settings/save', this.settings);
   }
 
   nextPage() {

@@ -93,10 +93,19 @@ func FetchAllFromSource(srcConId primitive.ObjectID) {
 		ctx, cancelFn := context.WithCancel(context.Background())
 		jobs.Add(jobID, cancelFn)
 
-		txCh, errCh := src.FetchTransactions(ctx, srcCon.LastFetched.Add(-5*time.Minute))
-		newTxCount := 0
-
+		srcCon.LastFetched = time.Now().UTC()
 		col := DBConn.Collection(transactions.COL_TRANSACTION)
+
+		var latestTs time.Time
+		latestTx := Transaction{}
+		col.Find(context.Background(), bson.M{"srcName": srcCon.SrcName}).Sort("-ts").One(&latestTx)
+
+		if !latestTx.Ts.IsZero() {
+			latestTs = latestTx.Ts.Add(-1 * time.Minute)
+		}
+
+		txCh, errCh := src.FetchTransactions(ctx, latestTs)
+		newTxCount := 0
 
 		defer PushToClients("job-progress", map[string]string{
 			"_id":      jobID.Hex(),
@@ -155,6 +164,15 @@ func FetchAllFromSource(srcConId primitive.ObjectID) {
 		}
 
 		applog.Send(applog.Info, fmt.Sprintf("Downloaded %d new transactions", newTxCount), src.Label())
+		err := Update(srcCon)
+
+		if err != nil {
+			golog.Errorf("Failed to update \"lastFetched\" value for source connection: %v", err)
+			return
+		}
+
+		// Ask front-end to update the source connections so that the UI shows the
+		PushToClients("update-src-connections", nil)
 	}(src, srcCon)
 }
 

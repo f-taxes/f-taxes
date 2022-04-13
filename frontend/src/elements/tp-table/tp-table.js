@@ -356,6 +356,7 @@ export class TpTable extends DomQuery(LitElement) {
 
       setTimeout(() => {
         this._draggedColumn = false;
+        this.dispatchEvent(new CustomEvent('column-width-changed', { detail: this.columns, bubbles: true, composed: true }));
       });
     } else if (data.state === 'track') {
       handle.style.transform = `translateX(${data.dx}px)`;
