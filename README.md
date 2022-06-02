@@ -16,6 +16,12 @@ F-Taxes is very, very early stage and not usable yet. Feel free to run the app y
 The reason is that the software is very early stage and is missing A LOT of the typical
 security mechanisms to have it accessible to the outside world in a safe as possible way.
 
+## Tech Stack
+
+The backend is written in GO. The frontend is a Single Page Application with heavily uses web components.
+The lib for the web components is called lit-element (https://lit.dev/).
+Mongodb is used to store the data.
+
 ## How to run F-Taxes for development
 
 Follow these steps to run F-Taxes locally for development. It comes ready to go with build tooling.
