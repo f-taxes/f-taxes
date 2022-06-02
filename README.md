@@ -16,6 +16,43 @@ F-Taxes is very, very early stage and not usable yet. Feel free to run the app y
 The reason is that the software is very early stage and is missing A LOT of the typical
 security mechanisms to have it accessible to the outside world in a safe as possible way.
 
-## Install instructions
+## How to run F-Taxes for development
 
-[Soon]
+Follow these steps to run F-Taxes locally for development. It comes ready to go with build tooling.
+
+### Prerequisites
+
+F-Taxes uses Mongodb as it's database. You can either simply install mongodb (https://www.mongodb.com/try/download/community) on your machine.
+This makes it available on localhost:27017 or you run `docker-compose up -d` to spin up mongodb using docker.
+
+Next you need to have the GO programming language installed. Please refer to https://go.dev/ for the installation steps.
+For the frontend you need to have nodejs installed. Please refer to https://docs.npmjs.com/downloading-and-installing-node-js-and-npm for the installation steps.
+
+For build tooling you need to install `air` and `gowebbuild`
+
+```bash
+go install github.com/cosmtrek/air@latest
+```
+
+```bash
+go install github.com/trading-peter/gowebbuild@latest
+```
+
+Next make sure that Mongodb runs on localhost:27017 (that's the default and should therefore be the case).
+
+Open a terminal and navigate into the `frontend` folder.
+Type `npm install` and hit enter. This installs all the dependencies of the frontend.
+
+Navigate into the project root.
+Type `air` and hit enter. This will start the backend with support for auto-reloading on file changes in the `backend/` folder.
+
+Open a second terminal in the project root.
+Type `gowebbuild` and hit enter. This will rebuild the frontend every time you change a file in `frontend/src`.
+
+You can leverage the auto-reload feature in your browser by using the livereload extension (https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei).
+
+Open your browser and navigate to http://localhost:8000
+
+You should see the F-Taxes UI.
+
+To stop developing press CTRL+C in both terminals.

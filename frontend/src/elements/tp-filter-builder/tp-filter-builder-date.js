@@ -31,8 +31,6 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
     const tz = this.options.timeZone || 'UTC';
     const { from, to } = this.value || {};
 
-    console.log(this.value);
-
     return html`
       <tp-form>
         <form class="wrap">
@@ -84,8 +82,15 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
   shouldUpdate(changes) {
     super.shouldUpdate(changes);
 
+    if (changes.has('value')) {
+      this.from = this.value.from;
+      this.to = this.value.to;
+    }
+
     if (changes.has('from') || changes.has('to')) {
-      this._datesChanged();
+      setTimeout(() => {
+        this._datesChanged();
+      });
     }
 
     return true;
@@ -104,21 +109,6 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
     }
 
     this.updateValue('value', this.value);
-  }
-
-  _setDates(value) {
-    if (!value) {
-      this.from = null;
-      this.to = null;
-      return;
-    }
-
-    if (typeof value === 'string') {
-      this.from = value;
-    } else {
-      this.from = value.from;
-      this.to = value.to;
-    }
   }
 
   _removeFilterField() {

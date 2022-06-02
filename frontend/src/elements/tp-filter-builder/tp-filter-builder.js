@@ -351,8 +351,18 @@ class TpFilterBuilder extends BaseElement {
   }
   
   _update() {
-    this.dispatchEvent(new CustomEvent('filters-changed', { detail: this.filters, bubbles: true, composed: true }));
-    console.log(this.filters);
+    const filters = [];
+
+    for (let i = 0, li = this.filters.length; i < li; ++i) {
+      const grp = this.filters[i];
+      const fAndGrp = grp.filter(f => f.value !== undefined && f.value !== '');
+      
+      if (fAndGrp.length > 0) {
+        filters.push(fAndGrp);
+      }
+    }
+
+    this.dispatchEvent(new CustomEvent('filters-changed', { detail: filters, bubbles: true, composed: true }));
   }
 }
 

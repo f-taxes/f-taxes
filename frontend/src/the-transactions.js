@@ -95,7 +95,7 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
     return html`
       <div class="tools">
         <div>
-          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions}></tp-filter-builder>
+          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions} @filters-changed=${this.applyFilter}></tp-filter-builder>
         </div>
         <div>
           <tp-popup halign="right">
@@ -129,7 +129,7 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
 
     this.filterFields = [
       { name: "ts", label: "Date", type: "date" },
-      { name: "source", label: "Source", type: "text" },
+      { name: "srcCon", label: "Account", type: "text" },
       { name: "ticker", label: "Ticker", type: "text" },
       { name: "base", label: "Base", type: "text" },
       { name: "quote", label: "Quote", type: "text" },
@@ -193,6 +193,10 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
     this.pageStats = resp.data;
     this.settings.transactions.pagination = this.pagination.value;
     this.post('/settings/save', this.settings);
+  }
+
+  applyFilter(e) {
+    console.log(e.detail);
   }
 
   sortingChanged(e) {
