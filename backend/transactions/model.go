@@ -5,7 +5,6 @@ import (
 	"math"
 
 	. "github.com/f-taxes/f-taxes/backend/global"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 const COL_TRANSACTION = "transactions"
@@ -25,7 +24,7 @@ func Paginate(q Query) (PaginationResult, error) {
 	}
 
 	col := DBConn.Collection(COL_TRANSACTION)
-	count, err := col.Find(context.Background(), bson.M{}).Count()
+	count, err := col.Find(context.Background(), q.ConstructedFilter).Count()
 
 	if err != nil {
 		return out, err
@@ -37,6 +36,6 @@ func Paginate(q Query) (PaginationResult, error) {
 	out.Limit = q.Limit
 	out.TotalPages = int64(math.Ceil(float64(count) / float64(q.Limit)))
 
-	err = col.Find(context.Background(), bson.M{}).Sort(q.Sort).Skip((q.Page - 1) * q.Limit).Limit(q.Limit).All(&out.Items)
+	err = col.Find(context.Background(), q.ConstructedFilter).Sort(q.Sort).Skip((q.Page - 1) * q.Limit).Limit(q.Limit).All(&out.Items)
 	return out, err
 }

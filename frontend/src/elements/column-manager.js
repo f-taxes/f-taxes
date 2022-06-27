@@ -70,23 +70,23 @@ class ColumnManager extends Store(fetchMixin(LitElement)) {
 
     return html`
       <tp-sortable @sorting-changed=${this.sort}>
-          <div class="list scrollbar" slot="list">
-            ${repeat(columns, col => col.name, col => {
-              const colS = colSettings.get(col.name);
-              const visible = colS ? colS.visible : col.visible;
+        <div class="list scrollbar" slot="list">
+          ${repeat(columns, col => col.name, col => {
+            const colS = colSettings.get(col.name);
+            const visible = colS ? colS.visible : col.visible;
 
-              return html`
-                <div class="col" .col=${col.name} .visible=${col.required || visible}>
-                  <tp-icon class="handle" .icon=${icons['dot-grid']}></tp-icon>
-                  <div>${col.label}</div>
-                  ${!col.required ? html`
-                    <tp-icon class="visible" ?active=${visible} .icon=${icons.eye} @click=${() => this.toggle(col, !visible)}></tp-icon>
-                  ` : null}
-                </div>
-              `;
-            })}
-          </div>
-        </tp-sortable>
+            return html`
+              <div class="col" .col=${col.name} .visible=${col.required || visible}>
+                <tp-icon class="handle" .icon=${icons['dot-grid']}></tp-icon>
+                <div>${col.label}</div>
+                ${!col.required ? html`
+                  <tp-icon class="visible" ?active=${visible} .icon=${icons.eye} @click=${() => this.toggle(col, !visible)}></tp-icon>
+                ` : null}
+              </div>
+            `;
+          })}
+        </div>
+      </tp-sortable>
     `;
   }
 

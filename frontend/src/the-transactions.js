@@ -12,12 +12,12 @@ import './elements/tp-table/tp-table.js';
 import './elements/tp-filter-builder/tp-filter-builder.js';
 import './elements/tp-date-input.js';
 import { LitElement, html, css } from 'lit';
-import shared from './styles/shared';
-import Pagination from './helpers/pagination.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin';
-import icons from './icons.js';
 import { Store } from '@tp/tp-store/store';
 import { getLocalDateFormat } from './helpers/time.js';
+import shared from './styles/shared';
+import Pagination from './helpers/pagination.js';
+import icons from './icons.js';
 
 class TheTransactions extends fetchMixin(Store(LitElement)) {
   static get styles() {
@@ -196,7 +196,8 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
   }
 
   applyFilter(e) {
-    console.log(e.detail);
+    this.pagination.setFilter(e.detail);
+    this.fetchTransactions();
   }
 
   sortingChanged(e) {

@@ -1,9 +1,10 @@
 export default class Pagination {
-  constructor(page = 1, limit = 20, sortBy = null, sortDir = 'asc') {
+  constructor(page = 1, limit = 20, sortBy = null, sortDir = 'asc', filter = []) {
     this.page = page;
     this.limit = limit;
     this.sortBy = sortBy;
     this.sortDir = sortDir;
+    this.filter = filter;
   }
 
   nextPage() {
@@ -22,6 +23,10 @@ export default class Pagination {
     this.limit = Math.max(1, limit);
   }
 
+  setFilter(filter) {
+    this.filter = filter;
+  }
+
   updateSort(sortBy, sortDir) {
     this.sortBy = sortBy;
     this.sortDir = sortDir;
@@ -34,6 +39,6 @@ export default class Pagination {
       sort = '-' + sort;
     }
 
-    return { page: this.page, limit: this.limit, sort }
+    return { page: this.page, limit: this.limit, sort, filter: this.filter };
   }
 }

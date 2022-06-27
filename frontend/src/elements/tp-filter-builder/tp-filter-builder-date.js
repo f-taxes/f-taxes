@@ -40,9 +40,9 @@ class TpFilterBuilderDate extends FilterBuilderField(LitElement) {
             <tp-dropdown class="field" name="field" .default=${(fields[0] || {}).value} .value=${field} .items=${fields} @value-changed=${e => this.updateValue('selection', e.detail)}></tp-dropdown>
           `}
           <tp-dropdown class="filter" name="filter" .default=${(lists.filter[0] || {}).value} .value=${filter} .items=${lists.filter} @value-changed=${e => this.updateValue('filter', e.detail)}></tp-dropdown>
-          <tp-date-input name="from" minYear="100" class="from" .format=${dateFormat} .timeZone=${tz} value=${from} @value-changed=${e => this.from = e.detail}></tp-date-input>
+          <tp-date-input name="from" minYear="100" class="from" .format=${dateFormat} timeZone="UTC" value=${from} @value-changed=${e => this.from = e.detail}></tp-date-input>
           ${filter === 'between' ? html`
-            <tp-date-input name="to" minYear="100" .format=${dateFormat} value=${to} .timeZone=${tz} @value-changed=${e => this.to = e.detail}></tp-date-input>
+            <tp-date-input name="to" minYear="100" .format=${dateFormat} value=${to} timeZone="UTC" @value-changed=${e => this.to = e.detail}></tp-date-input>
           ` : null}
           <div class="remove" @click=${this._removeFilterField}>
             <tp-icon .icon=${TpFilterBuilderDate.iconRemove} tooltip="Remove this filter"></tp-icon>
