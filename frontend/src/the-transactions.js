@@ -124,17 +124,9 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
     this.pagination = new Pagination(1, 5000, 'ts', 'asc');
 
     this.storeSubscribe([
-      'settings'
+      'settings',
+      'srcConnections'
     ]);
-
-    this.filterFields = [
-      { name: "ts", label: "Date", type: "date" },
-      { name: "srcCon", label: "Account", type: "text" },
-      { name: "ticker", label: "Ticker", type: "text" },
-      { name: "base", label: "Base", type: "text" },
-      { name: "quote", label: "Quote", type: "text" },
-      { name: "side", label: "Side", type: "enum", enums: [ { value: "buy", label: "Buy" }, { value: "sell", label: "Sell" } ] }
-    ];
   }
 
   shouldUpdate(changes) {
@@ -169,6 +161,17 @@ class TheTransactions extends fetchMixin(Store(LitElement)) {
       this.defaultOptions = {
         date: { dateFormat: getLocalDateFormat(), timeZone: this.settings.timeZone }
       };
+    }
+
+    if (key === 'srcConnections') {
+      this.filterFields = [
+        { name: "ts", label: "Date", type: "date" },
+        { name: "srcConId", label: "Account", type: "enum", enums: this.srcConnections.map(c => ({ value: c._id, label: c.label })) },
+        { name: "ticker", label: "Ticker", type: "text" },
+        { name: "base", label: "Base", type: "text" },
+        { name: "quote", label: "Quote", type: "text" },
+        { name: "side", label: "Side", type: "enum", enums: [ { value: "buy", label: "Buy" }, { value: "sell", label: "Sell" } ] }
+      ];
     }
   }
 

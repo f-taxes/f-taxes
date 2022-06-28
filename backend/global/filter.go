@@ -104,8 +104,20 @@ func configureTextFilter(filter Filter) (any, error) {
 func configureEnumFilter(filter Filter) (any, error) {
 	switch filter.Filter {
 	case "is":
+		val := filter.Value.(string)
+
+		if id, err := primitive.ObjectIDFromHex(val); err == nil {
+			return id, nil
+		}
+
 		return filter.Value.(string), nil
 	case "not":
+		val := filter.Value.(string)
+
+		if id, err := primitive.ObjectIDFromHex(val); err == nil {
+			return bson.M{"$ne": id}, nil
+		}
+
 		return bson.M{"$ne": filter.Value.(string)}, nil
 	default:
 		return nil, fmt.Errorf("unsupported filter '%s'", filter.Filter)
