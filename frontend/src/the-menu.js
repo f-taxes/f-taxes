@@ -28,6 +28,15 @@ class TheMenu extends Store(LitElement) {
           color: var(--menu-color);
         }
 
+        .logo {
+          display: flex;
+          justify-content: center;
+        }
+
+        .logo img {
+          margin-right: 20px;
+        }
+
         .title {
           font-weight: bold;
           font-size: 24px;
@@ -75,7 +84,10 @@ class TheMenu extends Store(LitElement) {
     const routeData = this.routeParams.join('-');
 
     return html`
-      <div class="title">F-TAXES</div>
+      <div class="logo">
+        <img src="/assets/img/logo_48x48.png" alt="F-TAXES Logo" width="48" height="48">
+        <div class="title">F-TAXES</div>
+      </div>
       <nav>
         <tp-popup>
           <tp-button slot="toggle" class="notifs only-icon" @click=${e => this.shadowRoot.querySelector('.notifs').classList.remove('unread')}>
@@ -107,6 +119,7 @@ class TheMenu extends Store(LitElement) {
     this.items = [
       { label: 'Transactions', path: '/transactions', match: /^transactions.*/ },
       { label: 'Sources', path: '/sources', match: /^sources.*/ },
+      { label: 'Plugins', path: '/plugins', match: /^plugins.*/ },
       { label: 'Settings', path: '/settings', match: /^settings.*/ }
     ];
 

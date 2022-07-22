@@ -5,10 +5,10 @@ This program is available under Apache License Version 2.0
 */
 
 import '@tp/tp-popup/tp-popup.js';
+import '@tp/tp-table/tp-table.js';
 import './elements/column-manager.js';
 import './elements/pagination-bar.js';
 import './elements/tx-row.js';
-import './elements/tp-table/tp-table.js';
 import './elements/tp-filter-builder/tp-filter-builder.js';
 import './elements/tp-date-input.js';
 import { LitElement, html, css } from 'lit';

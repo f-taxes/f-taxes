@@ -23,6 +23,7 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
         :host {
           display: block;
           padding: 20px;
+          flex: 1;
         }
 
         card-box {

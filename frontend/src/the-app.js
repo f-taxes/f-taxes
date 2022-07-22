@@ -7,17 +7,20 @@ This program is available under Apache License Version 2.0
 import '@tp/tp-router/tp-router.js';
 import './the-menu.js';
 import './elements/job-status.js';
-import { LitElement, html, css } from 'lit';
 import theme from './styles/theme.js';
+import { LitElement, html, css } from 'lit';
 import { Store } from '@tp/tp-store/store.js';
+import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 import LazyImports from '@tp/helpers/lazy-imports.js'
 import WS from './helpers/ws.js';
-import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
+import icons from './icons.js';
+import shared from './styles/shared.js';
 
 class TheApp extends fetchMixin(Store(LitElement)) {
   static get styles() {
     return [
       theme,
+      shared,
       css`
         :host {
           display: block;
@@ -35,6 +38,30 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         the-404 {
           flex: 1;
         }
+
+        footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: var(--bg1);
+          color: var(--hl1);
+          padding: 20px 20px;
+        }
+
+        footer > div {
+          display: flex;
+          align-items: center;
+        }
+
+        .heart {
+          --tp-icon-width: 16px;
+          --tp-icon-height: 16px;
+        }
+
+        .heart,
+        a {
+          padding: 0 5px;
+        }
       `
     ];
   }
@@ -50,7 +77,9 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         <tp-route path="/" data="home"></tp-route>
         <tp-route path="/transactions" data="transactions"></tp-route>
         <tp-route path="/sources" data="sources"></tp-route>
+        <tp-route path="/plugins" data="plugins"></tp-route>
         <tp-route path="/settings" data="settings"></tp-route>
+        <tp-route path="/contributors" data="contributors"></tp-route>
       </tp-router>
       
       <div class="main">
@@ -58,8 +87,24 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         ${page === '404' ? html`<the-404></the-404>` : null }
         ${page === 'transactions' ? html`<the-transactions .active=${page === 'transactions'}></the-transactions>` : null }
         ${page === 'sources' ? html`<the-sources .active=${page === 'sources'} .ws=${this.ws}></the-sources>` : null }
+        ${page === 'plugins' ? html`<the-plugins .active=${page === 'plugins'} .ws=${this.ws}></the-plugins>` : null }
         ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
+        ${page === 'contributors' ? html`<the-contributors .active=${page === 'contributors'}></the-contributors>` : null }
+        <footer>
+          <div>
+            F-TAXES - The Free And Open Source Tax Reporting Tool For Crypto
+          </div>
+          <div>
+            <a href="https://github.com/f-taxes/f-taxes" target="_blank">
+              <tp-icon .icon=${icons.github}></tp-icon>
+            </a>
+          </div>
+          <div>
+            Made with <tp-icon class="heart" .icon=${icons.heart}></tp-icon> by <a href="https://twitter.com/trading_peter" target="_blank">trading_peter</a> and these awesome <a href="/contributors">contributors</a>.
+          </div>
+        </footer>
       </div>
+
 
       <job-status .ws=${this.ws}></job-status>
     `;
@@ -91,8 +136,14 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         { match: /sources/, imports: [
           '/assets/the-sources.js'
         ] },
+        { match: /plugins/, imports: [
+          '/assets/the-plugins.js'
+        ] },
         { match: /settings/, imports: [
           '/assets/the-settings.js'
+        ] },
+        { match: /contributors/, imports: [
+          '/assets/the-contributors.js'
         ] }
       ]
     );

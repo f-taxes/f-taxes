@@ -2,27 +2,30 @@
   "Watch": {
     "Path": "./frontend/src"
   },
-  "Copy": [
-    {
-      "Src": "./frontend/index.html",
-      "Dest": "./frontend-dist"
-    }
-  ],
+  "Copy": [{
+    "Src": "./frontend/index.html",
+    "Dest": "./frontend-dist"
+  }, {
+    "Src": "./frontend/src/img",
+    "Dest": "./frontend-dist/img"
+  }],
   "ESBuild": {
     "EntryPoints": [
       "./frontend/src/the-app.js",
       "./frontend/src/the-transactions.js",
       "./frontend/src/the-sources.js",
       "./frontend/src/the-settings.js",
+      "./frontend/src/the-contributors.js",
+      "./frontend/src/the-plugins.js",
       "./frontend/src/the-404.js"
     ],
-    "Outdir":    "./frontend-dist",
+    "Outdir": "./frontend-dist",
     "Sourcemap": 1,
-    "Format":    3,
+    "Format": 3,
     "Splitting": true,
-    "Platform":  0,
-    "Bundle":    true,
-    "Write":     true,
-    "LogLevel":  3
+    "Platform": 0,
+    "Bundle": true,
+    "Write": true,
+    "LogLevel": 3
   }
 }

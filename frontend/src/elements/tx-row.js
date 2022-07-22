@@ -4,7 +4,7 @@ Copyright (c) 2022 trading_peter
 This program is available under Apache License Version 2.0
 */
 
-import TpTableItem from './tp-table/tp-table-item';
+import TpTableItem from '@tp/tp-table/tp-table-item.js';
 import './cells/txid-cell.js';
 import './cells/src-cell.js';
 import { formatTs } from '../helpers/time.js';

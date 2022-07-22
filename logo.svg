@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg version="1.1" id="svg2" width="301.66132" height="301.66132" viewBox="0 0 301.66133 301.66133" sodipodi:docname="g446.svg" inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <defs id="defs6">
+    <linearGradient inkscape:collect="always" id="linearGradient4661">
+      <stop style="stop-color:#4dccb3;stop-opacity:1;" offset="0" id="stop4657" />
+      <stop style="stop-color:#48b1cb;stop-opacity:1;" offset="1" id="stop4659" />
+    </linearGradient>
+    <linearGradient x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(198.21117,-198.21117,-198.21117,-198.21117,400.89441,599.10559)" spreadMethod="pad" id="linearGradient464">
+      <stop style="stop-opacity:1;stop-color:#49cbb0" offset="0" id="stop456" />
+      <stop style="stop-opacity:1;stop-color:#49cbb0" offset="0.150838" id="stop458" />
+      <stop style="stop-opacity:1;stop-color:#4bb1c9" offset="0.865922" id="stop460" />
+      <stop style="stop-opacity:1;stop-color:#4bb1c9" offset="1" id="stop462" />
+    </linearGradient>
+    <clipPath clipPathUnits="userSpaceOnUse" id="clipPath659">
+      <g id="g663" transform="translate(-586.8877,-574.9229)">
+        <path d="M 0,1000 H 1000 V 0 H 0 Z" id="path661" />
+      </g>
+    </clipPath>
+    <clipPath clipPathUnits="userSpaceOnUse" id="clipPath665">
+      <g id="g669" transform="translate(-572.8779,-526.5137)">
+        <path d="M 0,1000 H 1000 V 0 H 0 Z" id="path667" />
+      </g>
+    </clipPath>
+    <linearGradient inkscape:collect="always" xlink:href="#linearGradient4661" id="linearGradient4663" x1="386.87698" y1="-613.12299" x2="613.7041" y2="-386.2959" gradientUnits="userSpaceOnUse" gradientTransform="matrix(0.15911885,0,0,0.15911885,325.31754,-515.56352)" />
+  </defs>
+  <sodipodi:namedview id="namedview4" pagecolor="#505050" bordercolor="#eeeeee" borderopacity="1" inkscape:showpageshadow="0" inkscape:pageopacity="0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#505050" showgrid="false" inkscape:zoom="6.3045646" inkscape:cx="61.146173" inkscape:cy="49.567261" inkscape:window-width="3360" inkscape:window-height="1367" inkscape:window-x="2560" inkscape:window-y="0" inkscape:window-maximized="1" inkscape:current-layer="g10" />
+  <g id="g10" inkscape:groupmode="layer" inkscape:label="Page 1" transform="matrix(1.3333333,0,0,-1.3333333,-515.83598,817.49732)">
+    <rect style="fill:url(#linearGradient4663);fill-opacity:1;stroke:none;stroke-width:0.18493" id="rect3136" width="36" height="36" x="386.87698" y="-613.12299" transform="scale(1,-1)" ry="7.609345" inkscape:export-filename="rect3136.png" inkscape:export-xdpi="300" inkscape:export-ydpi="300" />
+    <path id="rect9909" style="fill:#ffffff;fill-opacity:1;stroke-width:0.18493" d="m 394.97624,607.04461 h 23.72622 l -4.40921,-4.4426 h -13.32619 v -2.8183 l -4.60172,-5.26016 h 4.60172 v -7.36879 l -5.99082,-3.40037 z" sodipodi:nodetypes="ccccccccccc" />
+    <path id="path10687" style="fill:#ffffff;fill-opacity:1;stroke-width:0.18493" d="m 401.70381,599.34181 14.76941,-2e-5 -4.04321,-4.04479 h -2.32441 v -11.32211 l -5.0754,-3.43632 v 14.75843 l -6.89639,-0.0288 3.57,4.07359 z" sodipodi:nodetypes="cccccccccc" />
+  </g>
+</svg>

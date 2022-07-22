@@ -17,6 +17,10 @@ export default css`
     margin: 0 0 40px 0;
   }
 
+  a {
+    color: var(--hl1);
+  }
+
   tp-button tp-icon {
     margin-left: 10px;
     --tp-icon-height: 18px;

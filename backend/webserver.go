@@ -3,13 +3,10 @@ package backend
 import (
 	"embed"
 	"net/http"
-	"os"
-	"path/filepath"
-	"time"
 
 	"github.com/f-taxes/f-taxes/backend/applog"
-	"github.com/f-taxes/f-taxes/backend/config"
 	"github.com/f-taxes/f-taxes/backend/global"
+	"github.com/f-taxes/f-taxes/backend/plugin"
 	"github.com/f-taxes/f-taxes/backend/settings"
 	"github.com/f-taxes/f-taxes/backend/sources"
 	"github.com/f-taxes/f-taxes/backend/transactions"
@@ -17,34 +14,12 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/view"
 	"github.com/knadh/koanf"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
-func Start(webAssets embed.FS) {
-	cfg := config.LoadAppConfig("config.json")
+func Start(cfg *koanf.Koanf, webAssets embed.FS) {
 	app := iris.New()
 	app.Use(iris.Compression)
-
-	if cfg.Bool("debug") {
-		global.SetGoLogDebugFormat()
-		golog.SetLevel("debug")
-		golog.Info("Debug logging is enabled!")
-	}
-
-	if cfg.Bool("log.write") {
-		golog.Infof("Writing log messages to file %s", cfg.String("log.file"))
-		pathToAccessLog := cfg.String("log.path")
-		os.MkdirAll(filepath.Dir(pathToAccessLog), 0755)
-
-		w, err := rotatelogs.New(pathToAccessLog, rotatelogs.WithMaxAge(24*time.Hour), rotatelogs.WithRotationTime(time.Hour))
-
-		if err != nil {
-			golog.Fatal(err)
-		}
-
-		defer w.Close()
-		golog.SetOutput(w)
-	}
+	app.SetRoutesNoLog(true)
 
 	global.ConnectDB(cfg)
 
@@ -53,12 +28,18 @@ func Start(webAssets embed.FS) {
 	applog.Setup()
 	applog.RegisterRoutes(app)
 	settings.RegisterRoutes(app)
+	plugin.RegisterRoutes(app, cfg)
 	sources.RegisterRoutes(app)
 	transactions.RegisterRoutes(app)
 
 	global.SetupWebsocketServer(app)
 
-	if err := app.Listen(cfg.MustString("addr")); err != nil {
+	config := iris.WithConfiguration(iris.Configuration{
+		EnableOptimizations: true,
+		Charset:             "UTF-8",
+	})
+
+	if err := app.Listen(cfg.MustString("addr"), config); err != nil {
 		golog.Fatal(err)
 	}
 }

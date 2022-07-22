@@ -7,16 +7,7 @@ import (
 	. "github.com/f-taxes/f-taxes/backend/global"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
-	"go.mongodb.org/mongo-driver/bson"
 )
-
-type Query struct {
-	Page              int64      `json:"page" bson:"page"`
-	Limit             int64      `json:"limit" bson:"limit"`
-	Sort              string     `json:"sort" bson:"sort"`
-	Filter            [][]Filter `json:"filter"`
-	ConstructedFilter bson.M     `json:"constructedFilter"`
-}
 
 func RegisterRoutes(app *iris.Application) {
 	app.Post("/transactions/page", func(ctx iris.Context) {

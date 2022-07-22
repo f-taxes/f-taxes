@@ -12,11 +12,13 @@ func LoadAppConfig(path string) *koanf.Koanf {
 	k := koanf.New(".")
 
 	k.Load(confmap.Provider(map[string]interface{}{
-		"database.server": "localhost",
-		"database.port":   "27017",
-		"database.name":   "f-taxes",
-		"log.path":        "./logs/app_%Y_%m_%d__%H_%M.log",
-		"log.write":       false,
+		"database.server":  "localhost",
+		"database.port":    "27017",
+		"database.name":    "f-taxes",
+		"log.path":         "./logs/app_%Y_%m_%d__%H_%M.log",
+		"log.write":        false,
+		"plugins.path":     ".",
+		"plugins.registry": "https://github.com/f-taxes/plugins/raw/main/list.json",
 	}, "."), nil)
 
 	f := file.Provider(path)

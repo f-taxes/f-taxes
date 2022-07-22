@@ -16,12 +16,8 @@ import icons from './icons.js';
 import { DomQuery } from '@tp/helpers/dom-query.js'
 import { WsListener } from './helpers/ws-listener.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
-import { Store } from '@tp/tp-store/store.js';
-import { logos } from './logos.js';
-import { isZero, formatTs } from './helpers/time.js';
 
 const mixins = [
-  Store,
   fetchMixin,
   DomQuery,
   WsListener,
@@ -31,7 +27,7 @@ const BaseElement = mixins.reduce((baseClass, mixin) => {
   return mixin(baseClass);
 }, LitElement);
 
-class TheSources extends BaseElement {
+class ThePlugins extends BaseElement {
   static get styles() {
     return [
       shared,
@@ -58,25 +54,25 @@ class TheSources extends BaseElement {
           font-size: 20px;
         }
 
-        .src {
+        .plugin {
           display: grid;
           grid-template-columns: auto 1fr;
           grid-template-rows: 1fr 1fr auto;
           gap: 0 20px;
           grid-auto-flow: row;
           grid-template-areas:
-            "logo label actions"
-            "logo key actions";
+            "icon label actions"
+            "icon key actions";
           margin-top: 20px;
           background: var(--bg0);
           padding: 10px;
           border-radius: 4px;
         }
 
-        .logo {
+        .icon {
           padding: 10px;
           font-size: 30px;
-          grid-area: logo;
+          grid-area: icon;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -84,7 +80,7 @@ class TheSources extends BaseElement {
           background: var(--white);
         }
 
-        .logo img {
+        .icon img {
           max-width: 80px;
         }
 
@@ -122,69 +118,73 @@ class TheSources extends BaseElement {
           margin-left: 10px;
         }
 
-        .src label {
+        .plugin label {
           color: var(--text-low);
           margin-right: 10px;
+        }
+
+        .social {
+          margin-left: 10px;
+        }
+
+        .social tp-icon {
+          --tp-icon-width: 14px;
+          --tp-icon-height: 14px;
         }
       `
     ];
   }
 
   render() {
-    const { srcConnections, settings } = this;
+    const { plugins } = this;
 
     return html`
       <card-box>
-        <h2>Add your exchange accounts here</h2>
+        <h2>Plugins allow you to extend F-Taxes with new data sources for your tax reports.<br>All thanks to community contributions.</h2>
         <header>
-          <h3>You have ${srcConnections.length} sources set up</h3>
-          <tp-button @click=${this.startAddSource}>Add <tp-icon .icon=${icons.add}></tp-icon></tp-button>
+          <h3>We found ${plugins.length} plugins</h3>
+          <tp-button id="reloadBtn" @click=${this.reloadList} extended>Reload <tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
         </header>
         <div class="list">
-          ${srcConnections.length == 0 ? html`
-            <div class="empty">Click the "Add"-Button on the top right to add your first source</div>
-          ` : srcConnections.map(con => html`
-            <div class="src">
-              <div class="logo">
-                <img src=${logos[con.srcName]}></img>
+          ${plugins.length > 0 ? plugins.map(plugin => html`
+            <div class="plugin">
+              <div class="icon">
+                <img src=${plugin.icon}></img>
               </div>
               <div class="label">
-                <div><label>Label:</label>${con.label}</div>
-                <div><label>Last Fetched:</label>${isZero(con.lastFetched) ? 'Never' : formatTs(con.lastFetched, settings?.dateTimeFormat)}</div>
+                <div>
+                  <label>Label:</label>${plugin.label}
+                </div>
+                <div>
+                  <label>Author:</label>
+                  ${plugin.author.name}
+                  ${plugin.author.twitter ? html`<a class="social" href=${plugin.author.twitter} target="_blank"><tp-icon .icon=${icons.twitter}></tp-icon></a>` : null}
+                </div>
               </div>
               <div class="key">
-                <div><label>Api Key:</label>${con.key.substring(0, 6)}...</div>
-                <div><label>Api Secret:</label>***</div>
+                <div><label>Version:</label>${plugin.version}</div>
+                <div><label>Status:</label>Not Installed</div>
               </div>
               <div class="actions">
-                <tp-tooltip-wrapper text="Fetch newest data from this source" tooltipValign="top">
-                  <tp-button id=${'fetch_' + con._id} class="only-icon" extended @click=${e => this.fetchData(e, con)}><tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
+                <tp-tooltip-wrapper text="Install this plugin" tooltipValign="top">
+                  <tp-button class="only-icon" extended @click=${e => this.install(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
                 </tp-tooltip-wrapper>
 
-                <tp-tooltip-wrapper text="Remove source and it's associated data" tooltipValign="top">
-                  <tp-button class="only-icon" extended @click=${() => this.confirmRemoveSrcCon(con)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
+                <tp-tooltip-wrapper text="Uninstall this plugin" tooltipValign="top">
+                  <tp-button class="only-icon" extended @click=${() => this.confirmUninstall(plugin)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
                 </tp-tooltip-wrapper>
               </div>
             </div>
-          `)}
+          `): html`<div class="empty">Please wait until the list of available plugins was loaded...</div>`}
         </div>
       </card-box>
 
-      <tp-dialog id="addSourceDialog" showClose>
-        <h2>Add source to pull transaction history from</h2>
-        <the-source-form @submit=${this.addSource}></the-source-form>
-        <div class="buttons-justified">
-          <tp-button dialog-dismiss>Cancel</tp-button>
-          <tp-button id="addSourceBtn" @click=${() => this.shadowRoot.querySelector('the-source-form').submit()} extended>Add</tp-button>
-        </div>
-      </tp-dialog>
-
-      <tp-dialog id="removeSourceDialog" showClose>
+      <tp-dialog id="uninstallPluginDialog" showClose>
         <h2>Confirm removal</h2>
-        <p>Do you want to remove the source "${this.selSrcCon.label}"?<br>This will also delete all associated transactions and so on.</p>
+        <p>Do you want to remove the source "${this.selPlugins.label}"?<br>This will also delete all associated transactions and so on.</p>
         <div class="buttons-justified">
           <tp-button dialog-dismiss>Cancel</tp-button>
-          <tp-button class="danger" @click=${() => this.removeSrcCon()}>Yes, Remove</tp-button>
+          <tp-button class="danger" @click=${() => this.uninstallPlugin()}>Yes, Remove</tp-button>
         </div>
       </tp-dialog>
     `;
@@ -194,56 +194,54 @@ class TheSources extends BaseElement {
     return {
       items: { type: Array },
       active: { type: Boolean, reflect: true },
-      srcConnections: { type: Array },
+      plugins: { type: Array },
       settings: { type: Object },
-      selSrcCon: { type: Object },
+      selPlugins: { type: Object },
     };
   }
 
   constructor() {
     super();
-    this.srcConnections = [];
-    this.selSrcCon = {};
-
-    this.storeSubscribe([
-      'srcConnections',
-      'settings'
-    ]);
+    this.plugins = [];
+    this.selPlugins = {};
   }
 
-  startAddSource() {
-    this.$.addSourceDialog.show();
+  firstUpdated() {
+    setTimeout(() => {
+      this.reloadList();
+    }, 0);
   }
 
-  async addSource(e) {
-    this.$.addSourceBtn.showSpinner();
-    const resp = await this.post('/source/add', e.detail);
+  async reloadList() {
+    this.$.reloadBtn.showSpinner();
+
+    const resp = await this.get('/plugins/list');
     
     if (resp.result) {
-      this.$.addSourceBtn.showSuccess();
-      this.$.addSourceDialog.close();
+      this.$.reloadBtn.showSuccess();
+      this.plugins = resp.data;
     } else {
-      this.$.addSourceBtn.showError();
+      this.$.reloadBtn.showError();
     }
   }
 
-  async fetchData(e, con) {
+  async install(e, plugin) {
     const btn = e.target;
     btn.showSpinner();
-    const resp = await this.post('/source/fetch/one', { srcId: con._id });
+    const resp = await this.post('/plugins/install', { id: plugin.id });
     if (!resp.result) {
       btn.showError();
     }
   }
 
-  confirmRemoveSrcCon(con) {
-    this.selSrcCon = con;
-    this.$.removeSourceDialog.show();
+  confirmUninstall(plugin) {
+    this.selPlugins = plugin;
+    this.$.uninstallPluginDialog.show();
   }
 
-  removeSrcCon() {
-    this.post('/source/remove', { srcId: this.selSrcCon._id });
-    this.$.removeSourceDialog.close();
+  uninstallPlugin() {
+    this.post('/plugin/uninstall', { srcId: this.selPlugins._id });
+    this.$.uninstallPluginDialog.close();
   }
 
   onMsg(msg) {
@@ -262,4 +260,4 @@ class TheSources extends BaseElement {
   }
 }
 
-window.customElements.define('the-sources', TheSources);
+window.customElements.define('the-plugins', ThePlugins);

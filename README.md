@@ -62,3 +62,12 @@ Open your browser and navigate to http://localhost:8000
 You should see the F-Taxes UI.
 
 To stop developing press CTRL+C in both terminals.
+
+# Data Source Plugins
+
+Data source plugins function as a bridge between F-Taxes and some exchange, blockchain, excel file or whatever.
+
+Communication is done via NATS. A open source messaging server embedded into F-Taxes.
+NATS is a independent project and it's big benefit is the long list of readily available client libs for pretty much any popular coding language.
+This means, NATS allows to write extensions for F-Taxes in their preferred language without the need to know the tech stack of F-Taxes itself.
+

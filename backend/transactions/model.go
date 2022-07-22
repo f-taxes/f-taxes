@@ -5,6 +5,7 @@ import (
 	"math"
 
 	. "github.com/f-taxes/f-taxes/backend/global"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const COL_TRANSACTION = "transactions"
@@ -16,6 +17,14 @@ type PaginationResult struct {
 	Page          int64         `json:"page"`
 	Limit         int64         `json:"limit"`
 	TotalPages    int64         `json:"totalPages"`
+}
+
+type Query struct {
+	Page              int64      `json:"page" bson:"page"`
+	Limit             int64      `json:"limit" bson:"limit"`
+	Sort              string     `json:"sort" bson:"sort"`
+	Filter            [][]Filter `json:"filter"`
+	ConstructedFilter bson.M     `json:"constructedFilter"`
 }
 
 func Paginate(q Query) (PaginationResult, error) {
