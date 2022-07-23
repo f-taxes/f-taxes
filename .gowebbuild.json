@@ -8,6 +8,9 @@
   }, {
     "Src": "./frontend/src/img",
     "Dest": "./frontend-dist/img"
+  }, {
+    "Src": "./frontend/src/meta",
+    "Dest": "./frontend-dist"
   }],
   "ESBuild": {
     "EntryPoints": [
