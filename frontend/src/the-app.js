@@ -45,7 +45,8 @@ class TheApp extends fetchMixin(Store(LitElement)) {
           align-items: center;
           background: var(--bg1);
           color: var(--hl1);
-          padding: 20px 20px;
+          padding: 15px 20px;
+          margin-top: 3px;
         }
 
         footer > div {
@@ -100,7 +101,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
             </a>
           </div>
           <div>
-            Made with <tp-icon class="heart" .icon=${icons.heart}></tp-icon> by <a href="https://twitter.com/trading_peter" target="_blank">trading_peter</a> and these awesome <a href="/contributors">contributors</a>.
+            Made with <tp-icon class="heart" .icon=${icons.heart}></tp-icon> by <a href="https://twitter.com/trading_peter" target="_blank">trading_peter</a> and these awesome <a href="/contributors">contributors</a>
           </div>
         </footer>
       </div>

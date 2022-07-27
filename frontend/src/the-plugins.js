@@ -147,7 +147,7 @@ class ThePlugins extends BaseElement {
         </header>
         <div class="list">
           ${plugins.length > 0 ? plugins.map(plugin => html`
-            <div class="plugin">
+            <div class="plugin" id=${plugin.id}>
               <div class="icon">
                 <img src=${plugin.icon}></img>
               </div>
@@ -163,16 +163,26 @@ class ThePlugins extends BaseElement {
               </div>
               <div class="key">
                 <div><label>Version:</label>${plugin.version}</div>
-                <div><label>Status:</label>Not Installed</div>
+                <div><label>Status:</label>${this.pluginStatusToString(plugin.status)}</div>
               </div>
               <div class="actions">
-                <tp-tooltip-wrapper text="Install this plugin" tooltipValign="top">
-                  <tp-button class="only-icon" extended @click=${e => this.install(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
-                </tp-tooltip-wrapper>
+                ${plugin.status == 1 ? html`
+                  <tp-tooltip-wrapper text="Install this plugin" tooltipValign="top">
+                    <tp-button class="only-icon" extended @click=${e => this.install(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
+                  </tp-tooltip-wrapper>
+                ` : null}
 
-                <tp-tooltip-wrapper text="Uninstall this plugin" tooltipValign="top">
-                  <tp-button class="only-icon" extended @click=${() => this.confirmUninstall(plugin)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
-                </tp-tooltip-wrapper>
+                ${plugin.status == 2 ? html`
+                  <tp-tooltip-wrapper text="Update this plugin" tooltipValign="top">
+                    <tp-button class="only-icon" extended @click=${e => this.updatePlugin(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
+                  </tp-tooltip-wrapper>
+                ` : null}
+
+                ${plugin.status == 0 ? html`
+                  <tp-tooltip-wrapper text="Uninstall this plugin" tooltipValign="top">
+                    <tp-button class="only-icon" extended @click=${() => this.confirmUninstall(plugin)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
+                  </tp-tooltip-wrapper>
+                ` : null}
               </div>
             </div>
           `): html`<div class="empty">Please wait until the list of available plugins was loaded...</div>`}
@@ -181,7 +191,7 @@ class ThePlugins extends BaseElement {
 
       <tp-dialog id="uninstallPluginDialog" showClose>
         <h2>Confirm removal</h2>
-        <p>Do you want to remove the source "${this.selPlugins.label}"?<br>This will also delete all associated transactions and so on.</p>
+        <p>Do you want to remove the plugin "${this.selPlugins.label}"?<br>This will also delete all associated transactions and api connections.</p>
         <div class="buttons-justified">
           <tp-button dialog-dismiss>Cancel</tp-button>
           <tp-button class="danger" @click=${() => this.uninstallPlugin()}>Yes, Remove</tp-button>
@@ -212,25 +222,42 @@ class ThePlugins extends BaseElement {
     }, 0);
   }
 
-  async reloadList() {
-    this.$.reloadBtn.showSpinner();
+  async reloadList(e) {
+    const btn = e?.target;
+
+    if (btn) {
+      btn.showSpinner();
+    }
 
     const resp = await this.get('/plugins/list');
     
     if (resp.result) {
-      this.$.reloadBtn.showSuccess();
+      if (btn) {
+        btn.showSuccess();
+      }
       this.plugins = resp.data;
-    } else {
-      this.$.reloadBtn.showError();
+    } else if (btn) {
+      btn.showError();
     }
   }
 
   async install(e, plugin) {
     const btn = e.target;
     btn.showSpinner();
-    const resp = await this.post('/plugins/install', { id: plugin.id });
+    const resp = await this.post('/plugins/install', plugin);
     if (!resp.result) {
       btn.showError();
+    }
+  }
+
+  pluginStatusToString(status) {
+    switch (status) {
+      case 0:
+        return 'Installed';
+      case 1:
+        return 'Not Installed';
+      case 2:
+        return 'Update Available';
     }
   }
 
@@ -240,22 +267,28 @@ class ThePlugins extends BaseElement {
   }
 
   uninstallPlugin() {
-    this.post('/plugin/uninstall', { srcId: this.selPlugins._id });
+    this.post('/plugin/uninstall', this.selPlugins);
     this.$.uninstallPluginDialog.close();
   }
 
   onMsg(msg) {
-    if (msg.event === 'job-progress' && msg.data.srcConId !== undefined) {
+    if (msg.event === 'plugin-install-result') {
       const { data } = msg;
-      const btn = this.shadowRoot.querySelector('#fetch_' + data.srcConId);
+      const pluginEl = this.shadowRoot.getElementById(data.id);
 
-      if (data.progress === '100' && btn) {
-        btn.hideSpinner();
-      } else {
-        if (!btn.hasAttribute('locked')) {
-          btn.showSpinner();
+      if (pluginEl) {
+        if (data.result) {
+          pluginEl.querySelector('tp-button').showSuccess();
+        } else {
+          pluginEl.querySelector('tp-button').showError();
         }
       }
+
+      this.reloadList();
+    }
+
+    if (msg.event === 'plugin-uninstalled') {
+      this.reloadList();
     }
   }
 }

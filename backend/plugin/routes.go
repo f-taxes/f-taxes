@@ -1,21 +1,29 @@
 package plugin
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/f-taxes/f-taxes/backend/applog"
 	. "github.com/f-taxes/f-taxes/backend/global"
+	jobmanager "github.com/f-taxes/f-taxes/backend/jobManager"
+	"github.com/go-cmd/cmd"
 	"github.com/kataras/iris/v12"
 	"github.com/knadh/koanf"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var jobs = jobmanager.New()
 var Manager *PluginManager
 
 func RegisterRoutes(app *iris.Application, cfg *koanf.Koanf) {
 	Manager = &PluginManager{
-		Manifests:  []*Manifest{},
-		Registry:   cfg.MustString("plugins.registry"),
-		PluginPath: cfg.MustString("plugins.path"),
+		Manifests:      []*Manifest{},
+		Registry:       cfg.MustString("plugins.registry"),
+		PluginPath:     cfg.MustString("plugins.path"),
+		Host:           cfg.MustString("nats.host"),
+		Port:           cfg.MustInt("nats.port"),
+		SpawnedPlugins: map[string]*cmd.Cmd{},
 	}
 
 	Manager.Start()
@@ -40,22 +48,79 @@ func RegisterRoutes(app *iris.Application, cfg *koanf.Koanf) {
 
 	app.Post("/plugins/install", func(ctx iris.Context) {
 		reqData := struct {
-			ID string `json:"id"`
+			ID      string `json:"id"`
+			Label   string `json:"label"`
+			Version string `json:"version"`
 		}{}
 
 		if !ReadJSON(ctx, &reqData) {
 			return
 		}
 
-		err := Manager.Install(reqData.ID)
+		jobID := primitive.NewObjectID()
+		jobCtx, cancelFn := context.WithCancel(context.Background())
+		jobs.Add(jobID, cancelFn)
+
+		defer PushToClients("job-progress", map[string]string{
+			"_id":      jobID.Hex(),
+			"label":    fmt.Sprintf("Installing plugin %s (%s)", reqData.Label, reqData.Version),
+			"progress": "100",
+		})
+
+		PushToClients("job-progress", map[string]string{
+			"_id":      jobID.Hex(),
+			"label":    fmt.Sprintf("Installing plugin %s (%s)", reqData.Label, reqData.Version),
+			"progress": "-1",
+		})
+
+		err := Manager.Install(jobCtx, reqData.ID)
 
 		if err != nil {
-			applog.Send(applog.Error, fmt.Sprintf("Failed to install plugin: %v", err.Error()))
+			applog.Send(applog.Error, fmt.Sprintf("Failed to install plugin '%s (%s)': %v", reqData.Label, reqData.Version, err.Error()))
 			ctx.JSON(Resp{
 				Result: false,
 			})
+
+			PushToClients("plugin-install-result", map[string]any{
+				"id":     reqData.ID,
+				"result": false,
+			})
 			return
 		}
+
+		applog.Send(applog.Info, fmt.Sprintf("Plugin '%s (%s)' was installed", reqData.Label, reqData.Version))
+
+		PushToClients("plugin-install-result", map[string]any{
+			"id":     reqData.ID,
+			"result": true,
+		})
+
+		ctx.JSON(Resp{
+			Result: true,
+		})
+	})
+
+	app.Post("/plugin/uninstall", func(ctx iris.Context) {
+		reqData := struct {
+			ID      string `json:"id"`
+			Label   string `json:"label"`
+			Version string `json:"version"`
+		}{}
+
+		if !ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		err := Manager.Uninstall(reqData.ID)
+
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to uninstall plugin '%s': %s", reqData.ID, err.Error()))
+		}
+
+		PushToClients("plugin-uninstalled", map[string]any{
+			"id":     reqData.ID,
+			"result": true,
+		})
 
 		ctx.JSON(Resp{
 			Result: true,

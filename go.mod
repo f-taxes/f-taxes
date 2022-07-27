@@ -3,8 +3,9 @@ module github.com/f-taxes/f-taxes
 go 1.18
 
 require (
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/beefsack/go-rate v0.0.0-20220214233405-116f4ca011a0
-	github.com/google/go-github/v45 v45.2.0
+	github.com/go-cmd/cmd v1.4.1
 	github.com/grishinsana/goftx v1.2.1
 	github.com/hashicorp/go-getter v1.6.2
 	github.com/kataras/golog v0.1.7
@@ -44,7 +45,7 @@ require (
 	github.com/goccy/go-json v0.9.4 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/gorilla/css v1.0.0 // indirect

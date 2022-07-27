@@ -2,6 +2,7 @@ package backend
 
 import (
 	"embed"
+	"fmt"
 	"net/http"
 
 	"github.com/f-taxes/f-taxes/backend/applog"
@@ -39,7 +40,7 @@ func Start(cfg *koanf.Koanf, webAssets embed.FS) {
 		Charset:             "UTF-8",
 	})
 
-	if err := app.Listen(cfg.MustString("addr"), config); err != nil {
+	if err := app.Listen(fmt.Sprintf("%s:%d", cfg.MustString("host"), cfg.MustInt("port")), config); err != nil {
 		golog.Fatal(err)
 	}
 }

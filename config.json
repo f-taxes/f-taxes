@@ -1,5 +1,6 @@
 {
-  "addr": ":8000",
+  "host": "127.0.0.1",
+  "port": 8000,
   "debug": true,
   "log": {
     "path": "./logs/app_%Y_%m_%d__%H_%M.log",
