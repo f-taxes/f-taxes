@@ -49,11 +49,11 @@ Next make sure that Mongodb runs on localhost:27017 (that's the default and shou
 Open a terminal and navigate into the `frontend` folder.
 Type `npm install` and hit enter. This installs all the dependencies of the frontend.
 
-Navigate into the project root.
-Type `air` and hit enter. This will start the backend with support for auto-reloading on file changes in the `backend/` folder.
-
 Open a second terminal in the project root.
 Type `gowebbuild` and hit enter. This will rebuild the frontend every time you change a file in `frontend/src`.
+
+In the first terminal, navigate into the project root.
+Type `air` and hit enter (`air -c .\.air.win.toml` if you're on windows). This will start the backend with support for auto-reloading on file changes in the `backend/` folder.
 
 You can leverage the auto-reload feature in your browser by using the livereload extension (https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei).
 
