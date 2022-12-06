@@ -41,7 +41,7 @@ go install github.com/cosmtrek/air@latest
 ```
 
 ```bash
-go install github.com/trading-peter/gowebbuild@latest
+go install github.com/trading-peter/gowebbuild@master
 ```
 
 Next make sure that Mongodb runs on localhost:27017 (that's the default and should therefore be the case).
