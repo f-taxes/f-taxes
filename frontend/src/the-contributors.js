@@ -1,6 +1,6 @@
 /**
 @license
-Copyright (c) 2022 trading_peter
+Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
@@ -37,7 +37,7 @@ class TheContributors extends LitElement {
       <card-box>
         <h2>These Awesome Folks Make F-Taxes Possible</h2>
         <div>
-          <a href="https://twitter.com/_Nia_john_" target="_blank">_nia_john_</a> - Logo Design
+          <a href="https://x.com/_Nia_john_" target="_blank">_nia_john_</a> - Logo Design
         </div>
       </card-box>
     `;

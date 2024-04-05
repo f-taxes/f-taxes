@@ -104,6 +104,23 @@ export default css`
     background: #d8d8d8;
   }
 
+  tp-popup::part(toggle) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  tp-popup-menu-item {
+    --tp-popup-menu-item-color: var(--white);
+    --tp-icon-color: var(--white);
+  }
+
+  tp-popup-menu-item:hover {
+    --tp-popup-menu-item-color: var(--text-dark);
+    --tp-popup-menu-item-bg: var(--hl1);
+    --tp-icon-color: var(--text-dark);
+  }
+
   .button-centered {
     margin-top: 30px;
     text-align: center;

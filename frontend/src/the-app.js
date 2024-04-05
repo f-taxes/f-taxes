@@ -1,6 +1,6 @@
 /**
 @license
-Copyright (c) 2022 trading_peter
+Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
@@ -76,7 +76,8 @@ class TheApp extends fetchMixin(Store(LitElement)) {
       <tp-router @data-changed=${this.routeDataChanged}>
         <tp-route path="*" data="404"></tp-route>
         <tp-route path="/" data="home"></tp-route>
-        <tp-route path="/transactions" data="transactions"></tp-route>
+        <tp-route path="/trades" data="trades"></tp-route>
+        <tp-route path="/transfers" data="transfers"></tp-route>
         <tp-route path="/sources" data="sources"></tp-route>
         <tp-route path="/plugins" data="plugins"></tp-route>
         <tp-route path="/settings" data="settings"></tp-route>
@@ -86,7 +87,8 @@ class TheApp extends fetchMixin(Store(LitElement)) {
       <div class="main">
         <the-menu .ws=${this.ws}></the-menu>
         ${page === '404' ? html`<the-404></the-404>` : null }
-        ${page === 'transactions' ? html`<the-transactions .active=${page === 'transactions'}></the-transactions>` : null }
+        ${page === 'trades' ? html`<the-trades .active=${page === 'trades'} .ws=${this.ws}></the-trades>` : null }
+        ${page === 'transfers' ? html`<the-transfers .active=${page === 'transfers'} .ws=${this.ws}></the-transfers>` : null }
         ${page === 'sources' ? html`<the-sources .active=${page === 'sources'} .ws=${this.ws}></the-sources>` : null }
         ${page === 'plugins' ? html`<the-plugins .active=${page === 'plugins'} .ws=${this.ws}></the-plugins>` : null }
         ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
@@ -101,7 +103,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
             </a>
           </div>
           <div>
-            Made with <tp-icon class="heart" .icon=${icons.heart}></tp-icon> by <a href="https://twitter.com/trading_peter" target="_blank">trading_peter</a> and these awesome <a href="/contributors">contributors</a>
+            Made with <tp-icon class="heart" .icon=${icons.heart}></tp-icon> by <a href="https://x.com/trading_peter" target="_blank">trading_peter</a> and these awesome <a href="/contributors">contributors</a>
           </div>
         </footer>
       </div>
@@ -131,11 +133,11 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         { match: /^404+/, imports: [
           '/assets/the-404.js'
         ] },
-        { match: /transactions/, imports: [
-          '/assets/the-transactions.js'
+        { match: /trades/, imports: [
+          '/assets/the-trades.js'
         ] },
-        { match: /sources/, imports: [
-          '/assets/the-sources.js'
+        { match: /transfers/, imports: [
+          '/assets/the-transfers.js'
         ] },
         { match: /plugins/, imports: [
           '/assets/the-plugins.js'
@@ -152,7 +154,6 @@ class TheApp extends fetchMixin(Store(LitElement)) {
 
   firstUpdated() {
     super.firstUpdated();
-    this.fetchSrcConnections();
     this.fetchSettings();
   }
 
@@ -180,10 +181,6 @@ class TheApp extends fetchMixin(Store(LitElement)) {
     });
 
     ws.onMsg(async msg => {
-      if (msg.event === 'update-src-connections') {
-        this.fetchSrcConnections();
-      }
-
       if (msg.event === 'app-settings-updated') {
         this.fetchSettings();
       }
@@ -191,15 +188,6 @@ class TheApp extends fetchMixin(Store(LitElement)) {
 
     await ws.connect();
     return ws;
-  }
-
-  async fetchSrcConnections() {
-    const resp = await this.get('/sources/connections/list')
-    this.storeWrite('srcConnections', resp.data);
-
-    const srcMap = new Map();
-    resp.data.forEach(src => srcMap.set(src._id, src));
-    this.storeWrite('srcConnectionsMap', srcMap);
   }
 
   async fetchSettings() {

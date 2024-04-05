@@ -9,8 +9,8 @@ import (
 	"github.com/f-taxes/f-taxes/backend/global"
 	"github.com/f-taxes/f-taxes/backend/plugin"
 	"github.com/f-taxes/f-taxes/backend/settings"
-	"github.com/f-taxes/f-taxes/backend/sources"
-	"github.com/f-taxes/f-taxes/backend/transactions"
+	"github.com/f-taxes/f-taxes/backend/trades"
+	"github.com/f-taxes/f-taxes/backend/transfers"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/view"
@@ -30,8 +30,8 @@ func Start(cfg *koanf.Koanf, webAssets embed.FS) {
 	applog.RegisterRoutes(app)
 	settings.RegisterRoutes(app)
 	plugin.RegisterRoutes(app, cfg)
-	sources.RegisterRoutes(app)
-	transactions.RegisterRoutes(app)
+	trades.RegisterRoutes(app)
+	transfers.RegisterRoutes(app)
 
 	global.SetupWebsocketServer(app)
 

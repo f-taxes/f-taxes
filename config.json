@@ -5,5 +5,12 @@
   "log": {
     "path": "./logs/app_%Y_%m_%d__%H_%M.log",
     "write": false
+  },
+  "grpc": {
+    "address": ":4222"
+  },
+  "plugins": {
+    "registry": "",
+    "registryFile": "./registry.json"
   }
 }

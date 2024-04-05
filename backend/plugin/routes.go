@@ -7,7 +7,6 @@ import (
 	"github.com/f-taxes/f-taxes/backend/applog"
 	. "github.com/f-taxes/f-taxes/backend/global"
 	jobmanager "github.com/f-taxes/f-taxes/backend/jobManager"
-	"github.com/go-cmd/cmd"
 	"github.com/kataras/iris/v12"
 	"github.com/knadh/koanf"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,12 +17,11 @@ var Manager *PluginManager
 
 func RegisterRoutes(app *iris.Application, cfg *koanf.Koanf) {
 	Manager = &PluginManager{
-		Manifests:      []*Manifest{},
-		Registry:       cfg.MustString("plugins.registry"),
+		Registry:       cfg.String("plugins.registry"),
+		RegistryFile:   cfg.String("plugins.registryFile"),
 		PluginPath:     cfg.MustString("plugins.path"),
-		Host:           cfg.MustString("nats.host"),
-		Port:           cfg.MustInt("nats.port"),
-		SpawnedPlugins: map[string]*cmd.Cmd{},
+		GrpcAddress:    cfg.MustString("grpc.address"),
+		SpawnedPlugins: map[string]*SpawnedPlugin{},
 	}
 
 	Manager.Start()

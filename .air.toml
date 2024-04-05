@@ -17,7 +17,7 @@ include_ext = ["go", "tpl", "tmpl", "html"]
 # Ignore these filename extensions or directories.
 exclude_dir = ["frontend-dist", "_mongo", "frontend"]
 # Watch these directories if you specified.
-include_dir = ["backend"]
+include_dir = []
 # Exclude files.
 exclude_file = []
 # This log file places in your tmp_dir.

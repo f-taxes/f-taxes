@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -56,6 +56,18 @@ func (m *PluginManager) List() ([]Manifest, error) {
 	return updatedList, nil
 }
 
+func (m *PluginManager) ListInstalled() []Manifest {
+	return m.listLocalManifests()
+}
+
+func (m *PluginManager) GetSpawnedPluginById(id string) *SpawnedPlugin {
+	if p, ok := m.SpawnedPlugins[id]; ok {
+		return p
+	}
+
+	return nil
+}
+
 func (m *PluginManager) Uninstall(id string) error {
 	p, ok := m.getPluginPath(id)
 
@@ -68,7 +80,11 @@ func (m *PluginManager) Uninstall(id string) error {
 	m.Unlock()
 
 	if ok {
-		c.Stop()
+		c.Cmd.Stop()
+
+		if c.CtlClient != nil {
+			c.CtlClient.Connection.Close()
+		}
 	}
 	return os.RemoveAll(p)
 }
@@ -130,17 +146,32 @@ func (m *PluginManager) indexOfManifest(id string, manifests []Manifest) int {
 func (m *PluginManager) dlIndex() ([]Manifest, error) {
 	list := []Manifest{}
 
-	resp, err := http.Get(m.Registry)
-	if err != nil {
-		return list, err
-	}
+	if m.RegistryFile == "" {
+		resp, err := http.Get(m.Registry)
+		if err != nil {
+			return nil, err
+		}
 
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
 
-	err = json.Unmarshal(body, &list)
-	if err != nil {
-		return list, err
+		err = json.Unmarshal(body, &list)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		contents, err := os.ReadFile(m.RegistryFile)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(contents, &list)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return list, nil

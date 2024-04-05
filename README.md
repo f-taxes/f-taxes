@@ -6,7 +6,7 @@ It strives to be an alternative to the dozens of overpriced online services.
 Advantages:
 - Very fast in comparison with online services as it runs locally on your PC instead of in the cloud.
 - All your data stays under your control.
-- No transaction limits.
+- No limits on historic records.
 - Open source, extensible by the community.
 - Free, because paying taxes sucks already enough.
 
@@ -63,11 +63,46 @@ You should see the F-Taxes UI.
 
 To stop developing press CTRL+C in both terminals.
 
-# Data Source Plugins
+# Plugins
 
-Data source plugins function as a bridge between F-Taxes and some exchange, blockchain, excel file or whatever.
+Plugins communicate via GRPC with f-taxes. That way it is possible to implement plugins in any programming languages with a GRPC lib available.
 
-Communication is done via NATS. A open source messaging server embedded into F-Taxes.
-NATS is a independent project and it's big benefit is the long list of readily available client libs for pretty much any popular coding language.
-This means, NATS allows to write extensions for F-Taxes in their preferred language without the need to know the tech stack of F-Taxes itself.
+Each plugin must have a manifest.json file with basic details about it. Here's an example manifest:
+
+```jsonc
+{
+  "type": "Source",
+  "id": "csv_import",
+  "label": "CSV Import",
+  "author": {
+    "name": "trading_peter",
+    "twitter": "https://x.com/trading_peter"
+  },
+  "version": "1.0.0",
+  "icon": "[url to some image]",
+  "bin": "csv_import", // Name of the binary that f-taxes should start (must be the same for each operating system. The file extension should be omitted here. F-Taxes will add ".exe" on windows automatically).
+  "noSpan": false, // If true, F-Taxes won't try to spawn the plugin. Useful to run a plugin manually for development.
+  "repository": "https://github.com/f-taxes/csv_import",
+  "download": {
+    "windows": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-windows.zip",
+    "linux": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-linux.zip",
+    "darwin": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-darwin.zip"
+  },
+  "ctl": {
+    "address": "127.0.0.1:40001"
+  },
+  "web": {
+    "address": "127.0.0.1:40000",
+    "configPage": "/config"
+  }
+}
+```
+
+The following types of plugins are supported.
+
+## Source - Source Plugins
+
+This type of plugins functions as a bridge between F-Taxes and some exchange, blockchain, excel file or whatever.
+All it's supposed to do is to send trades to F-Taxes in a format that it can understand.
+
 

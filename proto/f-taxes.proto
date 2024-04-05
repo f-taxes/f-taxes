@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+option go_package = "github.com/f-taxes/f-taxes/proto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
+
+package FTaxesGrpc;
+
+enum TxAction {
+  BUY = 0;
+  SELL = 1;
+}
+
+enum TransferAction {
+  DEPOSIT = 0;
+  WITHDRAWAL = 1;
+}
+
+enum OrderType {
+  TAKER = 0;
+  MAKER = 1;
+}
+
+enum AssetType {
+  SPOT = 0;
+  SPOT_MARGIN = 1;
+  FUTURES = 2;
+}
+
+message Trade {
+  string TxID = 1 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp Ts = 2;
+  string Account = 3;
+  string Comment = 4;
+  
+  string Ticker = 1000;
+  string Quote = 1001;
+  string Asset = 1002;
+  AssetType AssetType = 1003;
+  
+  string Price = 2000;
+  string PriceC = 2001;
+  string QuotePriceC = 2002;
+  string PriceConvertedBy = 2003;
+  string QuotePriceConvertedBy = 2004;
+  string Amount = 2005;
+  string Value = 2006;
+  string ValueC = 2007;
+  TxAction Action = 2008;
+  OrderType OrderType = 2009;
+  string OrderID = 2010;
+  
+  string Fee = 3000;
+  string FeeC = 3001;
+  string FeeConvertedBy = 3002;
+  string FeeCurrency = 3003;
+  string FeeRate = 3004;
+  string FeePriceC = 3005;
+
+  string Plugin = 9000;
+  string PluginVersion = 9001;
+  google.protobuf.Timestamp Created = 9002;
+  google.protobuf.Timestamp Updated = 9003;
+}
+
+message Transfer {
+  string TxID = 1 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp Ts = 2;
+  string Account = 3;
+  string Source = 4;
+  string Destination = 5;
+  string Comment = 6;
+  
+  string Asset = 1000;
+  
+  string Amount = 2001;
+  TransferAction Action = 2000;
+  
+  string Fee = 3000;
+  string FeeC = 3001;
+  string FeeConvertedBy = 3002;
+  string FeeCurrency = 3003;
+  string FeePriceC = 3004;
+
+  string Plugin = 9000;
+  string PluginVersion = 9001;
+  google.protobuf.Timestamp Created = 9002;
+  google.protobuf.Timestamp Updated = 9003;
+}
+
+message SrcGenericFee {
+  string TxID = 1;
+  google.protobuf.Timestamp Ts = 2;
+  string Account = 3;
+  string Comment = 4;
+
+  string Fee = 3000;
+  string FeeCurrency = 3001;
+  string FeeRate = 3002;
+
+  string Plugin = 9000;
+  string PluginVersion = 9001;
+  google.protobuf.Timestamp Created = 9002;
+  google.protobuf.Timestamp Updated = 9003;
+}
+
+message JobProgress {
+  string ID = 1;
+  string Label = 2;
+  string Progress = 3;
+  string Plugin = 4;
+}
+
+message Record {
+  Trade Trade = 1;
+  Transfer Transfer = 2;
+}
+
+message StreamRecordsJob {
+  google.protobuf.Timestamp From = 1;
+  google.protobuf.Timestamp To = 2;
+  string Plugin = 90;
+  string PluginVersion = 91;
+}
+
+message Settings {
+  string DateTimeFormat = 1;
+  string TimeZone = 2;
+}
+
+enum LogLevel {
+  INFO = 0;
+  WARN = 1;
+  ERR = 2;
+}
+
+message AppLogMsg {
+  LogLevel Level = 1;
+  string Message = 2;
+  repeated string Tags = 3;
+}
+
+service FTaxes {
+  rpc SubmitTrade(Trade) returns (google.protobuf.Empty);
+  rpc SubmitTransfer(Transfer) returns (google.protobuf.Empty);
+  rpc SubmitGenericFee(SrcGenericFee) returns (google.protobuf.Empty);
+  rpc ShowJobProgress(JobProgress) returns (google.protobuf.Empty);
+  rpc GetSettings(google.protobuf.Empty) returns (Settings);
+  rpc AppLog(AppLogMsg) returns (google.protobuf.Empty);
+  rpc StreamRecords(StreamRecordsJob) returns (stream Record);
+}
+
+message TxUpdate {
+  google.protobuf.Timestamp Since = 1;
+}
+
+message TradeConversionJob {
+  Trade Trade = 1;
+  string TargetCurrency = 2;
+}
+
+message TransferConversionJob {
+  Transfer Transfer = 1;
+  string TargetCurrency = 2;
+}
+
+service PluginCtl {
+  rpc UpdateTrades(TxUpdate) returns (google.protobuf.Empty);
+  rpc ConvertPricesInTrade(TradeConversionJob) returns (Trade);
+  rpc ConvertPricesInTransfer(TransferConversionJob) returns (Transfer);
+}

@@ -1,0 +1,22 @@
+{
+  "type": "Conversion",
+  "id": "kraken_conversion",
+  "label": "Kraken Conversion",
+  "author": {
+    "name": "trading_peter",
+    "twitter": "https://x.com/trading_peter"
+  },
+  "version": "1.0.0",
+  "icon": "https://pro.kraken.com/app/favicon.ico",
+  "bin": "./kraken_conversion",
+  "noSpawn": true,
+  "repository": "https://github.com/f-taxes/kraken_conversion",
+  "download": {
+    "windows": "https://github.com/f-taxes/kraken_conversion/releases/download/1.0.0/kraken_conversion-windows.zip",
+    "linux": "https://github.com/f-taxes/kraken_conversion/releases/download/1.0.0/kraken_conversion-linux.zip",
+    "darwin": "https://github.com/f-taxes/kraken_conversion/releases/download/1.0.0/kraken_conversion-darwin.zip"
+  },
+  "ctl": {
+    "address": "127.0.0.1:4106"
+  }
+}

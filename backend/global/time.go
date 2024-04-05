@@ -5,12 +5,17 @@ import (
 	"time"
 )
 
+func StartOfMinute(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), 0, 0, time.UTC)
+}
+
 // Calculates the progress represented by currentTime in relation to startTime and now.
 // Used to calculate the progress of a job based on the assumption that it does something with historic records
 // starting some time in the past and making their way to the present time.
 // Illustration:
 // startTime - - - - - - - currentTime - - - now
-//                         ^- = 75% (this is calculated and returned)
+//
+//	^- = 75% (this is calculated and returned)
 func TimeProgressToNow(startTime, currentTime int64) float64 {
 	cTime := currentTime - startTime
 	now := time.Now().UTC().Unix() - startTime

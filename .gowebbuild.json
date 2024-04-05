@@ -1,6 +1,6 @@
 {
   "Watch": {
-    "Path": "./frontend/src"
+    "Paths": ["./frontend/src"]
   },
   "Copy": [{
     "Src": "./frontend/index.html",
@@ -12,11 +12,15 @@
     "Src": "./frontend/src/meta",
     "Dest": "./frontend-dist"
   }],
+  "Link": {
+    "From": "/home/pk/web/tp-elements",
+    "To": "./frontend"
+  },
   "ESBuild": {
     "EntryPoints": [
       "./frontend/src/the-app.js",
-      "./frontend/src/the-transactions.js",
-      "./frontend/src/the-sources.js",
+      "./frontend/src/the-trades.js",
+      "./frontend/src/the-transfers.js",
       "./frontend/src/the-settings.js",
       "./frontend/src/the-contributors.js",
       "./frontend/src/the-plugins.js",
@@ -29,6 +33,7 @@
     "Platform": 0,
     "Bundle": true,
     "Write": true,
-    "LogLevel": 3
+    "LogLevel": 3,
+    "External": ["node-fetch", "ws"]
   }
 }

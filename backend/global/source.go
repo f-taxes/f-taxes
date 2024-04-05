@@ -1,7 +1,6 @@
 package global
 
 import (
-	"context"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,7 +17,7 @@ type Source interface {
 	Label() string
 	Type() SourceType
 	ID() string
-	FetchTransactions(ctx context.Context, since time.Time) (<-chan SrcTx, <-chan error)
+	// FetchTransactions(ctx context.Context, since time.Time) (<-chan Trade, <-chan error)
 }
 
 type SourceInfo struct {
@@ -36,6 +35,6 @@ type SourceConnection struct {
 	ApiSecret  string             `bson:"apiSecret" json:"secret"`
 	Subaccount string             `bson:"subaccount" json:"subaccount"`
 
-	// Timestamp of the last time the app fetched transactions from the source.
+	// Timestamp of the last time the app fetched trades from the source.
 	LastFetched time.Time `bson:"lastFetched" json:"lastFetched"`
 }

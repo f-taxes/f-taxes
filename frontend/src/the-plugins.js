@@ -1,6 +1,6 @@
 /**
 @license
-Copyright (c) 2022 trading_peter
+Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
@@ -16,6 +16,7 @@ import icons from './icons.js';
 import { DomQuery } from '@tp/helpers/dom-query.js'
 import { WsListener } from './helpers/ws-listener.js';
 import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
+import { closest } from '@tp/helpers';
 
 const mixins = [
   fetchMixin,
@@ -84,6 +85,12 @@ class ThePlugins extends BaseElement {
           max-width: 80px;
         }
 
+        .icon tp-icon {
+          --tp-icon-color: var(--black);
+          --tp-icon-width: 32px;
+          --tp-icon-height: 32px;
+        }
+
         .label {
           grid-area: label;
           align-items: center;
@@ -131,6 +138,22 @@ class ThePlugins extends BaseElement {
           --tp-icon-width: 14px;
           --tp-icon-height: 14px;
         }
+
+        #pluginSettingsDialog::part(dialog) {
+          width: 80%;
+          height: 80%;
+        }
+
+        .frame-wrap {
+          display: flex;
+          flex-direction: row;
+          position: absolute;
+          inset: 30px 0;
+        }
+
+        #settingsFrame {
+          flex: 1;
+        }
       `
     ];
   }
@@ -149,7 +172,11 @@ class ThePlugins extends BaseElement {
           ${plugins.length > 0 ? plugins.map(plugin => html`
             <div class="plugin" id=${plugin.id}>
               <div class="icon">
-                <img src=${plugin.icon}></img>
+                ${plugin.icon ? html`
+                  <img src=${plugin.icon} height="32"></img>
+                ` : html`
+                  <tp-icon .icon=${icons.plugin}></tp-icon>
+                `}
               </div>
               <div class="label">
                 <div>
@@ -158,7 +185,6 @@ class ThePlugins extends BaseElement {
                 <div>
                   <label>Author:</label>
                   ${plugin.author.name}
-                  ${plugin.author.twitter ? html`<a class="social" href=${plugin.author.twitter} target="_blank"><tp-icon .icon=${icons.twitter}></tp-icon></a>` : null}
                 </div>
               </div>
               <div class="key">
@@ -166,6 +192,12 @@ class ThePlugins extends BaseElement {
                 <div><label>Status:</label>${this.pluginStatusToString(plugin.status)}</div>
               </div>
               <div class="actions">
+                ${plugin.web?.configPage ? html`
+                  <tp-tooltip-wrapper text="Show configuration page for this plugin" tooltipValign="top">
+                    <tp-button class="only-icon" extended @click=${e => this.showSettings(e, plugin)}><tp-icon .icon=${icons.settings}></tp-icon></tp-button>
+                  </tp-tooltip-wrapper>
+                ` : null}
+
                 ${plugin.status == 1 ? html`
                   <tp-tooltip-wrapper text="Install this plugin" tooltipValign="top">
                     <tp-button class="only-icon" extended @click=${e => this.install(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
@@ -191,10 +223,16 @@ class ThePlugins extends BaseElement {
 
       <tp-dialog id="uninstallPluginDialog" showClose>
         <h2>Confirm removal</h2>
-        <p>Do you want to remove the plugin "${this.selPlugins.label}"?<br>This will also delete all associated transactions and api connections.</p>
+        <p>Do you want to remove the plugin "${this.selPlugins.label}"?<br>This will also delete all associated records and api connections.</p>
         <div class="buttons-justified">
           <tp-button dialog-dismiss>Cancel</tp-button>
           <tp-button class="danger" @click=${() => this.uninstallPlugin()}>Yes, Remove</tp-button>
+        </div>
+      </tp-dialog>
+
+      <tp-dialog id="pluginSettingsDialog" showClose>
+        <div class="frame-wrap">
+          <iframe id="settingsFrame" src="" frameborder="0"></iframe>
         </div>
       </tp-dialog>
     `;
@@ -223,9 +261,10 @@ class ThePlugins extends BaseElement {
   }
 
   async reloadList(e) {
-    const btn = e?.target;
+    let btn = e?.target;
 
     if (btn) {
+      btn = closest(btn, 'tp-button');
       btn.showSpinner();
     }
 
@@ -290,6 +329,12 @@ class ThePlugins extends BaseElement {
     if (msg.event === 'plugin-uninstalled') {
       this.reloadList();
     }
+  }
+
+  showSettings(e, plugin) {
+    console.log(plugin);
+    this.$.settingsFrame.src = `http://${plugin.web.address}${plugin.web.configPage}`;
+    this.$.pluginSettingsDialog.show();
   }
 }
 

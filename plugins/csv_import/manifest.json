@@ -1,0 +1,26 @@
+{
+  "type": "Source",
+  "id": "csv_import",
+  "label": "CSV Import",
+  "author": {
+    "name": "trading_peter",
+    "twitter": "https://x.com/trading_peter"
+  },
+  "version": "1.0.0",
+  "icon": "",
+  "bin": "csv_import",
+  "noSpawn": true,
+  "repository": "https://github.com/f-taxes/csv_import",
+  "download": {
+    "windows": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-windows.zip",
+    "linux": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-linux.zip",
+    "darwin": "https://github.com/f-taxes/csv_import/releases/download/1.0.0/csv_import-darwin.zip"
+  },
+  "ctl": {
+    "address": "127.0.0.1:4100"
+  },
+  "web": {
+    "address": "127.0.0.1:4101",
+    "configPage": "/config"
+  }
+}

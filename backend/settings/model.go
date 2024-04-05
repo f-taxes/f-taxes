@@ -4,9 +4,9 @@ import (
 	"context"
 
 	. "github.com/f-taxes/f-taxes/backend/global"
-	"github.com/f-taxes/f-taxes/backend/transactions"
 	"github.com/kataras/golog"
 	"github.com/qiniu/qmgo"
+	"github.com/thlib/go-timezone-local/tzlocal"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -21,16 +21,17 @@ type Column struct {
 	Label    string `json:"label" bson:"label"`
 }
 
-type TransactionSettings struct {
-	Pagination transactions.Query `json:"pagination" bson:"pagination"`
-	Columns    []Column           `json:"columns" bson:"columns"`
+type TableSettings struct {
+	Pagination Query    `json:"pagination" bson:"pagination"`
+	Columns    []Column `json:"columns" bson:"columns"`
 }
 
 type UserSettings struct {
-	ID             primitive.ObjectID  `bson:"_id" json:"-"`
-	DateTimeFormat string              `bson:"dateTimeFormat" json:"dateTimeFormat"`
-	Transactions   TransactionSettings `bson:"transactions" json:"transactions"`
-	TimeZone       string              `bson:"timeZone" json:"timeZone"`
+	ID             primitive.ObjectID `bson:"_id" json:"-"`
+	DateTimeFormat string             `bson:"dateTimeFormat" json:"dateTimeFormat"`
+	Trades         TableSettings      `bson:"trades" json:"trades"`
+	Transfers      TableSettings      `bson:"transfers" json:"transfers"`
+	TimeZone       string             `bson:"timeZone" json:"timeZone"`
 }
 
 func ensureDefaultSettings() {
@@ -41,33 +42,85 @@ func ensureDefaultSettings() {
 		return
 	}
 
+	if s.TimeZone == "" {
+		tz, err := tzlocal.RuntimeTZ()
+		if err != nil {
+			golog.Errorf("Failed to get system timezone to set default setting: %v", err)
+			return
+		}
+
+		s.TimeZone = tz
+	}
+
 	if s.DateTimeFormat == "" {
 		s.DateTimeFormat = "Pp"
 	}
 
-	if s.Transactions.Pagination.Page == 0 {
-		s.Transactions.Pagination = transactions.Query{
+	if s.Trades.Pagination.Page == 0 {
+		s.Trades.Pagination = Query{
 			Page:  1,
 			Limit: 2000,
 			Sort:  "-ts",
 		}
 	}
 
-	if len(s.Transactions.Columns) == 0 {
-		s.Transactions.Columns = []Column{
-			{Name: "srcName", Label: "Source", Visible: true, Width: "203px"},
-			{Name: "base", Label: "Base", Visible: true, Width: "100px"},
+	if s.Transfers.Pagination.Page == 0 {
+		s.Transfers.Pagination = Query{
+			Page:  1,
+			Limit: 2000,
+			Sort:  "-ts",
+		}
+	}
+
+	if len(s.Trades.Columns) == 0 {
+		s.Trades.Columns = []Column{
+			{Name: "account", Label: "Account", Visible: true, Width: "200px"},
+			{Name: "ticker", Label: "Ticker", Visible: true, Width: "120px"},
 			{Name: "amount", Label: "Amount", Visible: true, Width: "100px"},
-			{Name: "cost", Label: "Cost", Visible: true, Width: "100px"},
-			{Name: "costC", Label: "Cost C", Visible: true, Width: "100px"},
-			{Name: "fee", Label: "Fee", Visible: true, Width: "163px"},
-			{Name: "feeC", Label: "Fee C", Visible: true, Width: "100px"},
+			{Name: "asset", Label: "Asset", Visible: true, Width: "100px"},
+			{Name: "price", Label: "Price", Visible: true, Width: "100px"},
 			{Name: "quote", Label: "Quote", Visible: true, Width: "100px"},
-			{Name: "side", Label: "Side", Visible: true, Width: "97px"},
-			{Name: "srcCon", Label: "Account", Visible: true, Width: "203px"},
-			{Name: "ticker", Label: "Ticker", Visible: true, Width: "117px"},
-			{Name: "ts", Label: "Date", Visible: true, Required: true, Width: "223px"},
+			{Name: "priceC", Label: "Price C", Visible: true, Width: "100px"},
+			{Name: "value", Label: "Value", Visible: true, Width: "100px"},
+			{Name: "valueC", Label: "Value C", Visible: true, Width: "100px"},
+			{Name: "quotePriceC", Label: "Quote Price C", Visible: true, Width: "100px"},
+			{Name: "fee", Label: "Fee", Visible: true, Width: "160px"},
+			{Name: "feePriceC", Label: "Fee Price C", Visible: true, Width: "100px"},
+			{Name: "feeC", Label: "Fee C", Visible: true, Width: "100px"},
+			{Name: "feeCurrency", Label: "Fee Currency", Visible: true, Width: "100px"},
+			{Name: "action", Label: "Action", Visible: true, Width: "100px"},
+			{Name: "orderType", Label: "Order Type", Visible: true, Width: "100px"},
+			{Name: "orderId", Label: "Order ID", Visible: true, Width: "100px"},
+			{Name: "assetType", Label: "Asset Type", Visible: true, Width: "100px"},
+			{Name: "ts", Label: "Date", Visible: true, Required: true, Width: "220px"},
 			{Name: "txId", Label: "Tx-ID", Visible: true, Width: "100px"},
+			{Name: "comment", Label: "Comment", Visible: true, Width: "100px"},
+			{Name: "plugin", Label: "Plugin", Visible: true, Width: "100px"},
+			{Name: "pluginVersion", Label: "Plugin Version", Visible: true, Width: "100px"},
+			{Name: "priceConvertedBy", Label: "Price Converted By", Visible: true, Width: "100px"},
+			{Name: "feeConvertedBy", Label: "Fee Converted By", Visible: true, Width: "100px"},
+		}
+	}
+
+	if len(s.Transfers.Columns) == 0 {
+		s.Transfers.Columns = []Column{
+			{Name: "account", Label: "Account", Visible: true, Width: "200px"},
+			{Name: "amount", Label: "Amount", Visible: true, Width: "100px"},
+			{Name: "asset", Label: "Asset", Visible: true, Width: "100px"},
+			{Name: "action", Label: "Action", Visible: true, Width: "100px"},
+			{Name: "source", Label: "Source", Visible: true, Width: "200px"},
+			{Name: "destination", Label: "Destination", Visible: true, Width: "200px"},
+			{Name: "fee", Label: "Fee", Visible: true, Width: "160px"},
+			{Name: "feePriceC", Label: "Fee Price C", Visible: true, Width: "100px"},
+			{Name: "feeC", Label: "Fee C", Visible: true, Width: "100px"},
+			{Name: "feeCurrency", Label: "Fee Currency", Visible: true, Width: "100px"},
+			{Name: "ts", Label: "Date", Visible: true, Required: true, Width: "220px"},
+			{Name: "txId", Label: "Tx-ID", Visible: true, Width: "100px"},
+			{Name: "comment", Label: "Comment", Visible: true, Width: "100px"},
+			{Name: "plugin", Label: "Plugin", Visible: true, Width: "100px"},
+			{Name: "pluginVersion", Label: "Plugin Version", Visible: true, Width: "100px"},
+			{Name: "priceConvertedBy", Label: "Price Converted By", Visible: true, Width: "100px"},
+			{Name: "feeConvertedBy", Label: "Fee Converted By", Visible: true, Width: "100px"},
 		}
 	}
 

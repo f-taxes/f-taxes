@@ -1,6 +1,6 @@
 /**
 @license
-Copyright (c) 2022 trading_peter
+Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
@@ -34,10 +34,15 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
         .settings-grid {
           display: grid;
           grid-template-columns: 1fr auto;
+          grid-row-gap: 40px;
         }
 
         .settings-grid label {
           font-weight: bold;
+        }
+
+        tp-form tp-dropdown {
+          margin-bottom: 0;
         }
       `
     ];
@@ -76,6 +81,16 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
                   </ul>
                 </div>
               </div>
+
+              <label>Delete all trades</label>
+              <div>
+                <tp-button @click=${this.deleteAllTrades} extended>Delete Trades</tp-button>
+              </div>
+
+              <label>Delete all transfers</label>
+              <div>
+                <tp-button @click=${this.deleteAllTransfers} extended>Delete Transfers</tp-button>
+              </div>
             </div>
             <div class="button-centered">
               <tp-button submit>Save Settings</tp-button>
@@ -110,6 +125,34 @@ class TheSettings extends fetchMixin(Store(LitElement)) {
 
     this.settings = Object.assign(this.settings, e.detail);
     const resp = await this.post('/settings/save', this.settings);
+
+    if (resp.result) {
+      btn.showSuccess();
+    } else {
+      btn.showError();
+    }
+  }
+
+  convertMissingPrices() {
+    this.get('/settings/convert/force');
+  }
+
+  async deleteAllTrades(e) {
+    const btn = e.target;
+    btn.showSpinner();
+    const resp = await this.get('/trades/clear');
+
+    if (resp.result) {
+      btn.showSuccess();
+    } else {
+      btn.showError();
+    }
+  }
+
+  async deleteAllTransfers(e) {
+    const btn = e.target;
+    btn.showSpinner();
+    const resp = await this.get('/transfers/clear');
 
     if (resp.result) {
       btn.showSuccess();

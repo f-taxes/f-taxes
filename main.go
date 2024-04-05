@@ -8,8 +8,8 @@ import (
 
 	"github.com/f-taxes/f-taxes/backend"
 	"github.com/f-taxes/f-taxes/backend/config"
+	"github.com/f-taxes/f-taxes/backend/gapi"
 	"github.com/f-taxes/f-taxes/backend/global"
-	natsserver "github.com/f-taxes/f-taxes/backend/natsServer"
 	"github.com/kataras/golog"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
@@ -41,6 +41,6 @@ func main() {
 		golog.SetOutput(w)
 	}
 
-	natsserver.Start()
+	go gapi.Start(cfg)
 	backend.Start(cfg, WebAssets)
 }

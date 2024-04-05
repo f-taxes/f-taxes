@@ -9,6 +9,9 @@ import (
 	"github.com/qiniu/qmgo"
 )
 
+const COL_TRANSFERS = "transfers"
+const COL_TRADES = "trades"
+
 var DBConn *qmgo.Database
 
 func ConnectDB(cfg *koanf.Koanf) {

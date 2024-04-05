@@ -1,6 +1,6 @@
 /**
 @license
-Copyright (c) 2022 trading_peter
+Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
@@ -117,8 +117,8 @@ class TheMenu extends Store(LitElement) {
   constructor() {
     super();
     this.items = [
-      { label: 'Transactions', path: '/transactions', match: /^transactions.*/ },
-      { label: 'Sources', path: '/sources', match: /^sources.*/ },
+      { label: 'Trades', path: '/trades', match: /^trades.*/ },
+      { label: 'Transfers', path: '/transfers', match: /^transfers.*/ },
       { label: 'Plugins', path: '/plugins', match: /^plugins.*/ },
       { label: 'Settings', path: '/settings', match: /^settings.*/ }
     ];

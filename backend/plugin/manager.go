@@ -11,21 +11,13 @@ import (
 
 	"github.com/f-taxes/f-taxes/backend/applog"
 	. "github.com/f-taxes/f-taxes/backend/global"
-	natsserver "github.com/f-taxes/f-taxes/backend/natsServer"
 	"github.com/kataras/golog"
-	"github.com/nats-io/nats.go"
 )
 
-func NatsResp(result bool, data any) []byte {
-	bytes, _ := json.Marshal(struct {
-		Result bool `json:"result"`
-		Data   any  `json:"data"`
-	}{
-		Result: result,
-		Data:   data,
-	})
-
-	return bytes
+type SpawnedPlugin struct {
+	Cmd       *cmd.Cmd
+	CtlClient *CtlClient
+	Manifest  Manifest
 }
 
 // Listens on the nats message server for plugins trying to register themselves.
@@ -33,31 +25,14 @@ func NatsResp(result bool, data any) []byte {
 type PluginManager struct {
 	sync.Mutex
 	Registry       string
-	Manifests      []*Manifest
+	RegistryFile   string // Used to available load plugins from a local file instead of downloading it from the registry. Useful for development.
 	PluginPath     string
-	Host           string
-	Port           int
-	SpawnedPlugins map[string]*cmd.Cmd
+	GrpcAddress    string
+	SpawnedPlugins map[string]*SpawnedPlugin
 }
 
 func (m *PluginManager) Start() {
 	golog.Info("Starting plugin manager")
-	_, err := natsserver.NatsClient.Subscribe("register", func(msg *nats.Msg) {
-		plugins := Manifest{}
-		err := json.Unmarshal(msg.Data, &plugins)
-
-		if err != nil {
-			golog.Errorf("Failed to unmarshal plugin registration: %v", err)
-			return
-		}
-
-		fmt.Printf("%+v\n", plugins)
-		msg.Respond(NatsResp(true, nil))
-	})
-
-	if err != nil {
-		golog.Fatalf("Failed to setup nats subscriptions: %v")
-	}
 
 	m.SpawnPlugins()
 }
@@ -71,16 +46,45 @@ func (m *PluginManager) SpawnPlugins() {
 }
 
 func (m *PluginManager) spawn(manifest Manifest) {
+	if manifest.Ctl.Address != "" {
+		pluginInstance := SpawnedPlugin{
+			Manifest: manifest,
+		}
+
+		if manifest.Ctl.Address != "" {
+			pluginInstance.CtlClient = NewCtlClient(manifest.ID, manifest.Ctl.Address)
+			go pluginInstance.CtlClient.Connect()
+		}
+
+		m.Lock()
+		m.SpawnedPlugins[manifest.ID] = &pluginInstance
+		m.Unlock()
+	}
+
+	if manifest.NoSpawn {
+		golog.Warnf("Won't start plugin %s. NoSpawn flag set.", manifest.ID)
+		return
+	}
+
 	golog.Infof("Starting plugin %s", manifest.ID)
 	cmdOptions := cmd.Options{
 		Streaming: true,
 		Buffered:  false,
 	}
-	pluginCmd := cmd.NewCmdOptions(cmdOptions, fmt.Sprintf(".%s%s", string(os.PathSeparator), manifest.Bin), "-host", m.Host, "-port", fmt.Sprintf("%d", m.Port))
+	pluginCmd := cmd.NewCmdOptions(cmdOptions, fmt.Sprintf(".%s%s", string(os.PathSeparator), manifest.Bin), "-grpc-addr", m.GrpcAddress)
 	pluginCmd.Dir = filepath.Join(m.PluginPath, manifest.ID)
 
+	pluginInstance := SpawnedPlugin{
+		Cmd:      pluginCmd,
+		Manifest: manifest,
+	}
+
+	if manifest.Ctl.Address != "" {
+		pluginInstance.CtlClient = NewCtlClient(manifest.ID, manifest.Ctl.Address)
+	}
+
 	m.Lock()
-	m.SpawnedPlugins[manifest.ID] = pluginCmd
+	m.SpawnedPlugins[manifest.ID] = &pluginInstance
 	m.Unlock()
 
 	doneChan := make(chan struct{})
@@ -117,6 +121,7 @@ func (m *PluginManager) spawn(manifest Manifest) {
 		delete(m.SpawnedPlugins, manifest.ID)
 		m.Unlock()
 
+		golog.Warnf("Plugin %s (%s) has exited", manifest.Label, manifest.Version)
 		applog.Send(applog.Warning, fmt.Sprintf("Plugin %s (%s) has exited", manifest.Label, manifest.Version), "Plugin")
 	}(manifest)
 }
