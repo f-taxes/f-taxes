@@ -66,10 +66,10 @@ class CbOptions extends WsListener(fetchMixin(LitElement)) {
   }
 
   async fetchConversionPlugins() {
-    const resp = await this.get('/plugins/list');
+    const resp = await this.post('/plugins/list', { types: [ 'Conversion' ], onlyInstalled: true });
     
     if (resp.result) {
-      this.conversionPlugins = resp.data.filter(p => p.type.toLowerCase() === 'conversion').map(p => ({ value: p.id, label: `${p.label} (${p.version})` }));
+      this.conversionPlugins = resp.data.map(p => ({ value: p.id, label: `${p.label} (${p.version})` }));
     }
   }
 

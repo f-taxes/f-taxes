@@ -45,16 +45,29 @@ func (m *PluginManager) SpawnPlugins() {
 	}
 }
 
+func (m *PluginManager) ConnectBackToPlugin(pluginId string) {
+	if manifest, ok := m.findLocalManifestById(pluginId); ok {
+		if manifest.Ctl.Address != "" && pluginId == manifest.ID && m.SpawnedPlugins[manifest.ID] != nil {
+			m.Lock()
+			if m.SpawnedPlugins[manifest.ID].CtlClient == nil {
+				m.SpawnedPlugins[manifest.ID].CtlClient = NewCtlClient(manifest.ID, manifest.Ctl.Address)
+				go m.SpawnedPlugins[manifest.ID].CtlClient.Connect()
+			}
+			m.Unlock()
+		}
+	}
+}
+
 func (m *PluginManager) spawn(manifest Manifest) {
 	if manifest.Ctl.Address != "" {
 		pluginInstance := SpawnedPlugin{
 			Manifest: manifest,
 		}
 
-		if manifest.Ctl.Address != "" {
-			pluginInstance.CtlClient = NewCtlClient(manifest.ID, manifest.Ctl.Address)
-			go pluginInstance.CtlClient.Connect()
-		}
+		// if manifest.Ctl.Address != "" {
+		// 	pluginInstance.CtlClient = NewCtlClient(manifest.ID, manifest.Ctl.Address)
+		// 	go pluginInstance.CtlClient.Connect()
+		// }
 
 		m.Lock()
 		m.SpawnedPlugins[manifest.ID] = &pluginInstance

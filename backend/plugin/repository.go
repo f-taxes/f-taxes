@@ -9,13 +9,24 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	semver "github.com/Masterminds/semver/v3"
+	"github.com/f-taxes/f-taxes/backend/global"
 	dl "github.com/hashicorp/go-getter"
 	"github.com/kataras/golog"
 )
 
-func (m *PluginManager) List() ([]Manifest, error) {
+func (m *PluginManager) UpdatePluginConnectionStatus(pluginId string) {
+	m.Lock()
+	defer m.Unlock()
+
+	if spawnedPlugin := m.GetSpawnedPluginById(pluginId); spawnedPlugin != nil {
+		spawnedPlugin.Manifest.LastHeartbeat = time.Now().UTC()
+	}
+}
+
+func (m *PluginManager) List(onlyInstalled bool, typeFilter ...string) ([]Manifest, error) {
 	availManifests, err := m.dlIndex()
 
 	if err != nil {
@@ -27,6 +38,10 @@ func (m *PluginManager) List() ([]Manifest, error) {
 	for i := range availManifests {
 		manifest := availManifests[i]
 		manifest.Status = PLUGIN_NOT_INSTALLED
+
+		if len(typeFilter) > 0 && !global.ContainsAny(typeFilter, manifest.Type) {
+			continue
+		}
 
 		if instManifest, ok := m.findLocalManifestById(manifest.ID); ok {
 			instVer, err := semver.NewVersion(instManifest.Version)
@@ -50,7 +65,13 @@ func (m *PluginManager) List() ([]Manifest, error) {
 			}
 		}
 
-		updatedList = append(updatedList, manifest)
+		if !onlyInstalled || (onlyInstalled && manifest.Status == PLUGIN_INSTALLED) {
+			if spawnedPlugin := m.GetSpawnedPluginById(manifest.ID); spawnedPlugin != nil {
+				manifest.LastHeartbeat = spawnedPlugin.Manifest.LastHeartbeat
+			}
+
+			updatedList = append(updatedList, manifest)
+		}
 	}
 
 	return updatedList, nil

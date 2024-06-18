@@ -4,6 +4,7 @@ Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
+import '@tp/tp-icon/tp-icon.js';
 import '@tp/tp-popup/tp-popup.js';
 import '@tp/tp-popup/tp-popup-menu.js';
 import '@tp/tp-popup/tp-popup-menu-item.js';
@@ -53,7 +54,7 @@ class TheTransfers extends BaseElement {
     return html`
       <div class="tools">
         <div>
-          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions} @filters-changed=${this.applyFilter}></tp-filter-builder>
+          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions} @filters-changed=${this.applyFilter} @filters-cleared=${this.applyFilter}></tp-filter-builder>
         </div>
         <div>
           <tp-button @click=${() => this.showTxEditor()}>
@@ -65,6 +66,7 @@ class TheTransfers extends BaseElement {
             <tp-icon slot="toggle" tooltip="Tools" .icon=${icons.tools}></tp-icon>
             <tp-popup-menu slot="content">
               <tp-popup-menu-item .icon=${icons.money} @click=${() => this.$.costBasisDialog.show()}>Cost-Basis</tp-popup-menu-item>
+              <tp-popup-menu-item .icon=${icons.delete} @click=${() => this.$.deleteFilteredDialog.show()}>Delete All Transfers (as filtered)</tp-popup-menu-item>
             </tp-popup-menu>
           </tp-popup>
 
@@ -79,7 +81,8 @@ class TheTransfers extends BaseElement {
         .items=${items}
         @dblclick=${this.tableDoubleClick}
         @sorting-changed=${e => this.sortingChanged(e)}
-        @column-width-changed=${e => this.colWidthChanged(e)}>
+        @column-width-changed=${e => this.colWidthChanged(e)}
+        @toggle-row-mark=${this.toggleRowMark}>
       </tp-table>
       <pagination-bar .stats=${pageStats} @next-page=${this.nextPage} @prev-page=${this.prevPage} @goto-page=${this.goto}></pagination-bar>
 
@@ -88,7 +91,16 @@ class TheTransfers extends BaseElement {
       </tp-dialog>
 
       <tp-dialog id="costBasisDialog">
-        <cb-options .ws=${ws} target="transfers"></cb-options>
+        <cb-options .ws=${ws} target="transfers" .filter=${this.activeFilter || []}></cb-options>
+      </tp-dialog>
+
+      <tp-dialog id="deleteFilteredDialog">
+        <h3>Please Confirm</h3>
+        <p>Delete all transfers as currently filtered?</p>
+        <div class="buttons-justified">
+          <tp-button dialog-dismiss>Cancel</tp-button>
+          <tp-button class="danger" @click=${this.deleteFilteredTransfers} extended>Yes, Delete Transfers</tp-button>
+        </div>
       </tp-dialog>
     `;
   }
@@ -101,6 +113,7 @@ class TheTransfers extends BaseElement {
       filterFields: { type: Array },
       defaultOptions: { type: Object },
       selTransfer: { type: Object },
+      markedRows: { type: Object },
     };
   }
 
@@ -108,11 +121,20 @@ class TheTransfers extends BaseElement {
     super();
     this.pagination = new Pagination(1, 5000, 'ts', 'asc');
     this.selTransfer = {};
+    this.markedRows = new Set();
 
     this.storeSubscribe([
       'settings',
       'srcConnections'
     ]);
+  }
+
+  get table() {
+    if (this._table === undefined) {
+      this._table = this.shadowRoot.querySelector('tp-table');
+    }
+    
+    return this._table;
   }
 
   shouldUpdate(changes) {
@@ -124,7 +146,7 @@ class TheTransfers extends BaseElement {
     super.firstUpdated();
 
     this.columns = this.settings.transfers.columns;
-    this.shadowRoot.querySelector('tp-table').renderItem = this.renderItem.bind(this);
+    this.table.renderItem = this.renderItem.bind(this);
     this.fetchTransfers();
   }
 
@@ -153,6 +175,8 @@ class TheTransfers extends BaseElement {
       { name: 'ts', label: 'Date', type: 'date' },
       { name: 'account', label: 'Account', type: 'text' },
       { name: 'asset', label: 'Asset', type: 'text' },
+      { name: 'fee', label: 'Fee', type: 'number' },
+      { name: 'feeC', label: 'Fee C', type: 'number' },
       { name: 'feeCurrency', label: 'Fee Currency', type: 'text' },
       { name: 'action', label: 'Action', type: 'enum', enums: [ { value: 'deposit', label: 'Deposit' }, { value: 'withdrawal', label: 'Withdrawal' } ] }
     ];
@@ -176,6 +200,7 @@ class TheTransfers extends BaseElement {
       <transfer-row
         exportparts="cell,odd,row"
         item
+        ?marked=${this.markedRows.has(item._id)}
         .index=${idx}
         .item=${item}
         .selectable=${this.selectable}
@@ -186,7 +211,7 @@ class TheTransfers extends BaseElement {
   }
 
   async fetchTransfers() {
-    this.shadowRoot.querySelector('tp-table').sorting = { column: this.pagination.sortBy, direction: this.pagination.sortDir };
+    this.table.sorting = { column: this.pagination.sortBy, direction: this.pagination.sortDir };
     const resp = await this.post('/transfers/page', this.pagination.value, true);
     this.items = resp.data.items;
     this.pageStats = resp.data;
@@ -243,6 +268,30 @@ class TheTransfers extends BaseElement {
   showTxEditor() {
     this.selTransfer = {};
     this.$.transferEditorDialog.show();
+  }
+
+  toggleRowMark(e) {
+    const id = e.detail;
+    if (this.markedRows.has(id)) {
+      this.markedRows.delete(id);
+    } else {
+      this.markedRows.add(id);
+    }
+    this.table.requestUpdate();
+  }
+
+  async deleteFilteredTransfers() {
+    const resp = await this.post('/transfers/delete', { filter: this.pagination.value.filter }, true);
+    const btn = this.$.deleteFilteredDialog.querySelector('tp-button.danger');
+    btn.showSpinner();
+
+    if (resp.result) {
+      btn.showSuccess();
+      this.$.deleteFilteredDialog.close();
+      this.fetchTransfers();
+    } else {
+      btn.showError();
+    }
   }
 }
 

@@ -12,8 +12,10 @@ export default css`
     --hl1: #46C8AF;
     --hl2: #3C5EC7;
     --red: #bd3434;
+    --green: #66bd34;
     --amber: #cf9f19;
     --popup-shadow:  2px 2px 15px rgb(60 126 167 / 33%);
+    --rec-marked: #37467f;
 
     --menu-background: var(--bg1);
     --menu-color: var(--hl1);

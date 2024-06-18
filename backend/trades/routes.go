@@ -56,6 +56,42 @@ func RegisterRoutes(app *iris.Application) {
 		})
 	})
 
+	app.Post("/trades/delete", func(ctx iris.Context) {
+		reqData := g.Query{
+			Filter: [][]g.Filter{},
+		}
+
+		if !g.ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		f, err := g.BuildFilter(reqData.Filter)
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to construct filter: %s. Please report this bug to the developers.", err.Error()), "Internal Error")
+			golog.Errorf("Failed to construct filter: %v", err)
+			ctx.JSON(g.Resp{
+				Result: false,
+				Data:   PaginationResult{},
+			})
+			return
+		}
+
+		result, err := g.DBConn.Collection(g.COL_TRADES).RemoveAll(context.Background(), f)
+
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to delete trades: %s. Please report this bug to the developers.", err.Error()), "Internal Error")
+			golog.Errorf("Failed to delete trades: %v", err)
+			ctx.StatusCode(iris.StatusInternalServerError)
+			return
+		}
+
+		applog.Send(applog.Info, fmt.Sprintf("%d trades where deleted.", result.DeletedCount))
+
+		ctx.JSON(g.Resp{
+			Result: true,
+		})
+	})
+
 	app.Get("/trades/clear", func(ctx iris.Context) {
 		err := g.DBConn.Collection(g.COL_TRADES).DropCollection(context.Background())
 
@@ -87,6 +123,7 @@ func RegisterRoutes(app *iris.Application) {
 		tx.Value = tx.Amount.Mul(tx.Price)
 		tx.ValueC = tx.Amount.Mul(tx.PriceC)
 		tx.FeeC = tx.Fee.Mul(tx.FeePriceC)
+		tx.QuoteFeeC = tx.QuoteFee.Mul(tx.QuoteFeePriceC)
 
 		_, err := g.DBConn.Collection(g.COL_TRADES).UpsertId(context.Background(), tx.ID, tx)
 		if err != nil {
@@ -101,6 +138,30 @@ func RegisterRoutes(app *iris.Application) {
 		}
 
 		g.PushToClients("record-edited", tx)
+
+		ctx.JSON(g.Resp{
+			Result: true,
+		})
+	})
+
+	app.Post("/trades/manually/delete", func(ctx iris.Context) {
+		reqData := struct {
+			ID primitive.ObjectID `json:"_id"`
+		}{}
+
+		if !g.ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		err := g.DBConn.Collection(g.COL_TRADES).RemoveId(context.Background(), reqData.ID)
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to delete trade: %s", err.Error()))
+
+			ctx.JSON(g.Resp{
+				Result: false,
+			})
+			return
+		}
 
 		ctx.JSON(g.Resp{
 			Result: true,
@@ -175,12 +236,12 @@ func RegisterRoutes(app *iris.Application) {
 					break
 				}
 
-				c++
 				g.PushToClients("job-progress", map[string]string{
 					"_id":      jobID,
 					"label":    fmt.Sprintf("[%s] Converting prices in %d trades to %s (%d / %d)", plugin.Manifest.Label, count, currency, c, count),
 					"progress": fmt.Sprintf("%2.f", (float64(c)/float64(count))*100),
 				})
+				c++
 
 				updatedTrade, err := plugin.CtlClient.GrpcClient.ConvertPricesInTrade(context.Background(), &proto.TradeConversionJob{
 					Trade:          g.TradeToProtoTrade(t),
@@ -192,20 +253,25 @@ func RegisterRoutes(app *iris.Application) {
 				}
 
 				priceC := g.StrToDecimal(updatedTrade.PriceC, decimal.Zero)
-				valueC := priceC.Mul(t.Amount)
+				valueC := g.StrToDecimal(updatedTrade.ValueC, decimal.Zero)
 				quotePriceC := g.StrToDecimal(updatedTrade.QuotePriceC, decimal.Zero)
 				feeC := g.StrToDecimal(updatedTrade.FeeC, decimal.Zero)
 				feePriceC := g.StrToDecimal(updatedTrade.FeePriceC, decimal.Zero)
+				quoteFeeC := g.StrToDecimal(updatedTrade.QuoteFeeC, decimal.Zero)
+				quoteFeePriceC := g.StrToDecimal(updatedTrade.QuoteFeePriceC, decimal.Zero)
 
 				err = col.UpdateOne(context.Background(), bson.M{"_id": t.ID}, bson.M{
 					"$set": bson.M{
-						"priceC":           g.DecimalToMongoDecimal(priceC),
-						"valueC":           g.DecimalToMongoDecimal(valueC),
-						"quotePriceC":      g.DecimalToMongoDecimal(quotePriceC),
-						"priceConvertedBy": updatedTrade.PriceConvertedBy,
-						"feeC":             g.DecimalToMongoDecimal(feeC),
-						"feePriceC":        g.DecimalToMongoDecimal(feePriceC),
-						"feeConvertedBy":   updatedTrade.FeeConvertedBy,
+						"priceC":              g.DecimalToMongoDecimal(priceC),
+						"valueC":              g.DecimalToMongoDecimal(valueC),
+						"quotePriceC":         g.DecimalToMongoDecimal(quotePriceC),
+						"priceConvertedBy":    updatedTrade.PriceConvertedBy,
+						"feeC":                g.DecimalToMongoDecimal(feeC),
+						"feePriceC":           g.DecimalToMongoDecimal(feePriceC),
+						"feeConvertedBy":      updatedTrade.FeeConvertedBy,
+						"quoteFeeC":           g.DecimalToMongoDecimal(quoteFeeC),
+						"quoteFeePriceC":      g.DecimalToMongoDecimal(quoteFeePriceC),
+						"quoteFeeConvertedBy": updatedTrade.QuoteFeeConvertedBy,
 					},
 				})
 

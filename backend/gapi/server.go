@@ -9,6 +9,7 @@ import (
 	"github.com/f-taxes/f-taxes/backend/applog"
 	"github.com/f-taxes/f-taxes/backend/global"
 	g "github.com/f-taxes/f-taxes/backend/global"
+	"github.com/f-taxes/f-taxes/backend/plugin"
 	"github.com/f-taxes/f-taxes/backend/settings"
 	"github.com/f-taxes/f-taxes/backend/trades"
 	"github.com/f-taxes/f-taxes/backend/transfers"
@@ -34,6 +35,17 @@ func init() {
 	}
 
 	validator = v
+}
+
+// Create a grpc connection to the plugin if once it said hello.
+func (s *GapiServer) PluginHeartbeat(ctx context.Context, in *pb.PluginInfo) (*emptypb.Empty, error) {
+	if in.HasCtlServer {
+		plugin.Manager.ConnectBackToPlugin(in.ID)
+	}
+
+	plugin.Manager.UpdatePluginConnectionStatus(in.ID)
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s *GapiServer) StreamRecords(job *pb.StreamRecordsJob, stream pb.FTaxes_StreamRecordsServer) error {

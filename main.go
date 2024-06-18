@@ -18,7 +18,7 @@ import (
 var WebAssets embed.FS
 
 func main() {
-	cfg := config.LoadAppConfig("config.json")
+	cfg := config.LoadAppConfig("config.yml")
 
 	if cfg.Bool("debug") {
 		global.SetGoLogDebugFormat()

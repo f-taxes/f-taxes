@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/kataras/golog"
 	"github.com/knadh/koanf"
-	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/file"
 )
@@ -27,7 +27,7 @@ func LoadAppConfig(path string) *koanf.Koanf {
 
 	f := file.Provider(path)
 
-	if err := k.Load(f, json.Parser()); err != nil {
+	if err := k.Load(f, yaml.Parser()); err != nil {
 		golog.Fatalf("Error loading config: %v", err)
 	}
 

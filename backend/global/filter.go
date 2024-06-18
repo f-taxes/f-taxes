@@ -64,6 +64,8 @@ func configureFilter(filter Filter) (any, error) {
 	switch filter.Type {
 	case "text":
 		return configureTextFilter(filter)
+	case "number":
+		return configureNumberFilter(filter)
 	case "date":
 		return configureDateFilter(filter)
 	case "enum":
@@ -96,6 +98,31 @@ func configureTextFilter(filter Filter) (any, error) {
 	case "endsNotWith":
 		r := bson.M{"$regex": primitive.Regex{Pattern: regexp.QuoteMeta(filter.Value.(string)) + "$", Options: "i"}}
 		return bson.M{"$not": r}, nil
+	default:
+		return nil, fmt.Errorf("unsupported filter '%s'", filter.Filter)
+	}
+}
+
+func configureNumberFilter(filter Filter) (any, error) {
+	v, err := primitive.ParseDecimal128(filter.Value.(string))
+
+	if err != nil {
+		return nil, err
+	}
+
+	switch filter.Filter {
+	case "=":
+		return v, nil
+	case ">":
+		return bson.M{"$gt": v}, nil
+	case "<":
+		return bson.M{"$lt": v}, nil
+	case ">=":
+		return bson.M{"$gte": v}, nil
+	case "<=":
+		return bson.M{"$lte": v}, nil
+	case "!=":
+		return bson.M{"$ne": v}, nil
 	default:
 		return nil, fmt.Errorf("unsupported filter '%s'", filter.Filter)
 	}

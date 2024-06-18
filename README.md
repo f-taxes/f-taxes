@@ -105,4 +105,31 @@ The following types of plugins are supported.
 This type of plugins functions as a bridge between F-Taxes and some exchange, blockchain, excel file or whatever.
 All it's supposed to do is to send trades to F-Taxes in a format that it can understand.
 
+## Trade Data Fields
+
+The following fields are supported in the transaction data as per protocol buffer definition.
+Not all of them need to be transmitted by source plugins as they are supposed to be filled in by the cost basis plugins.
+
+| Field                 | Type      | Required | Filled By          | Description                                                                      |
+| --------------------- | --------- | -------- | ------------------ | -------------------------------------------------------------------------------- |
+| TxID                  | string    | Yes      | Source Plugins     | A unique ID to identify the trade                                                |
+| Ts                    | Timestamp | Yes      | Source Plugins     | UTC Timestamp of the transaction in ISO format.                                  |
+| Account               | string    | Yes      | Source Plugins     | Name of the account that the trade was made in.                                  |
+| Comment               | string    | No       | User / Any Plugins |                                                                                  |
+| Ticker                | string    | Yes      | Source Plugins     | Make sure to normalize tickers across exchanges. For example XBTUSD and BTC/USD. |
+| Asset                 | string    | Yes      | Source Plugins     | Base currency of the market.                                                     |
+| Quote                 | string    | Yes      | Source Plugins     | Quote currency of the market.                                                    |
+| Price                 | string    | Yes      | Source Plugins     | Price of the asset denoted in the quote currency.                                |
+| PriceC                | string    | Yes      | Cost Basis Plugins | Price of the asset converted to the user's native currency.                      |
+| QuotePriceC           | string    | Yes      | Cost Basis Plugins | Price of the quote currency convert to the user's native currency.               |
+| PriceConvertedBy      | string    | No       | Cost Basis Plugins | Name of the plugin that converted the price.                                     |
+| QuotePriceConvertedBy | string    | No       | Cost Basis Plugins | Name of the plugin that converted the price.                                     |
+| Amount                | string    | Yes      | Source Plugins     | Amount of the base asset that was either bought or sold.                         |
+| Value                 | string    | Yes      | Source Plugins     | Value of the base asset amount denoted in the quote currency.                    |
+| ValueC                | string    | Yes      | Cost Basis Plugins | Value of the base asset amount denoted in the user's native currency. currency.  |
+| Action                | TxAction  | Yes      | Source Plugins     | Either BUY or SELL                                                               |
+
+## About taxes
+
+The Amount field is expected to have any fee denoted in the base currency already deducted when submitted by the source plugin.
 

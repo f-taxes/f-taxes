@@ -23,10 +23,10 @@ enum OrderType {
   MAKER = 1;
 }
 
-enum AssetType {
-  SPOT = 0;
-  SPOT_MARGIN = 1;
-  FUTURES = 2;
+message TradeProps {
+  bool IsMarginTrade = 1;
+  bool IsDerivative = 2;
+  bool IsPhysical = 3;
 }
 
 message Trade {
@@ -38,7 +38,6 @@ message Trade {
   string Ticker = 1000;
   string Quote = 1001;
   string Asset = 1002;
-  AssetType AssetType = 1003;
   
   string Price = 2000;
   string PriceC = 2001;
@@ -56,8 +55,20 @@ message Trade {
   string FeeC = 3001;
   string FeeConvertedBy = 3002;
   string FeeCurrency = 3003;
-  string FeeRate = 3004;
-  string FeePriceC = 3005;
+  string FeePriceC = 3004;
+  
+  string QuoteFee = 3100;
+  string QuoteFeeC = 3101;
+  string QuoteFeeConvertedBy = 3102;
+  string QuoteFeeCurrency = 3103;
+  string QuoteFeePriceC = 3104;
+  
+  int32 AssetDecimals = 3200;
+  int32 QuoteDecimals = 3201;
+  int32 FeeDecimals = 3202;
+  int32 QuoteFeeDecimals = 3203;
+  
+  TradeProps Props = 4000;
 
   string Plugin = 9000;
   string PluginVersion = 9001;
@@ -84,6 +95,9 @@ message Transfer {
   string FeeCurrency = 3003;
   string FeePriceC = 3004;
 
+  int32 AssetDecimals = 4001;
+  int32 FeeDecimals = 4002;
+
   string Plugin = 9000;
   string PluginVersion = 9001;
   google.protobuf.Timestamp Created = 9002;
@@ -98,7 +112,6 @@ message SrcGenericFee {
 
   string Fee = 3000;
   string FeeCurrency = 3001;
-  string FeeRate = 3002;
 
   string Plugin = 9000;
   string PluginVersion = 9001;
@@ -150,6 +163,7 @@ service FTaxes {
   rpc GetSettings(google.protobuf.Empty) returns (Settings);
   rpc AppLog(AppLogMsg) returns (google.protobuf.Empty);
   rpc StreamRecords(StreamRecordsJob) returns (stream Record);
+  rpc PluginHeartbeat(PluginInfo) returns (google.protobuf.Empty);
 }
 
 message TxUpdate {
@@ -166,8 +180,13 @@ message TransferConversionJob {
   string TargetCurrency = 2;
 }
 
+message PluginInfo {
+  string ID = 1;
+  string Version = 2;
+  bool HasCtlServer = 3;
+}
+
 service PluginCtl {
-  rpc UpdateTrades(TxUpdate) returns (google.protobuf.Empty);
   rpc ConvertPricesInTrade(TradeConversionJob) returns (Trade);
   rpc ConvertPricesInTransfer(TransferConversionJob) returns (Transfer);
 }

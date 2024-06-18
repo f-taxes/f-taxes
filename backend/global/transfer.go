@@ -30,11 +30,13 @@ type Transfer struct {
 	Destination string             `json:"destination" bson:"destination"`
 	Comment     string             `json:"comment" bson:"comment"`
 
-	Asset  Currency        `json:"asset" bson:"asset"`
-	Amount decimal.Decimal `json:"amount" bson:"amount"`
-	Action TransferAction  `json:"action" bson:"action"`
+	Asset         Currency        `json:"asset" bson:"asset"`
+	AssetDecimals int32           `json:"assetDecimals" bson:"assetDecimals"`
+	Amount        decimal.Decimal `json:"amount" bson:"amount"`
+	Action        TransferAction  `json:"action" bson:"action"`
 
 	Fee            decimal.Decimal `json:"fee" bson:"fee"`
+	FeeDecimals    int32           `json:"feeDecimals" bson:"feeDecimals"`
 	FeeC           decimal.Decimal `json:"feeC" bson:"feeC"`
 	FeeConvertedBy string          `json:"feeConvertedBy"`
 	FeeCurrency    Currency        `json:"feeCurrency" bson:"feeCurrency"`
@@ -74,11 +76,13 @@ func (t Transfer) MarshalBSON() ([]byte, error) {
 		Destination: t.Destination,
 		Comment:     t.Comment,
 
-		Asset:  t.Asset,
-		Amount: DecimalToMongoDecimal(t.Amount),
-		Action: t.Action,
+		Asset:         t.Asset,
+		AssetDecimals: t.AssetDecimals,
+		Amount:        DecimalToMongoDecimal(t.Amount),
+		Action:        t.Action,
 
 		Fee:         DecimalToMongoDecimal(t.Fee),
+		FeeDecimals: t.FeeDecimals,
 		FeePriceC:   DecimalToMongoDecimal(t.FeePriceC),
 		FeeCurrency: t.FeeCurrency,
 		FeeC:        DecimalToMongoDecimal(t.FeeC),
@@ -114,10 +118,12 @@ func (t *Transfer) UnmarshalBSON(b []byte) error {
 	t.Comment = d.Comment
 
 	t.Asset = d.Asset
+	t.AssetDecimals = d.AssetDecimals
 	t.Amount = decimal.RequireFromString(d.Amount.String())
 	t.Action = d.Action
 
 	t.Fee = decimal.RequireFromString(d.Fee.String())
+	t.FeeDecimals = d.FeeDecimals
 	t.FeePriceC = decimal.RequireFromString(d.FeePriceC.String())
 	t.FeeCurrency = d.FeeCurrency
 	t.FeeC = decimal.RequireFromString(d.FeeC.String())
@@ -139,11 +145,13 @@ type transferDoc struct {
 	Destination string             `json:"destination" bson:"destination"`
 	Comment     string             `json:"comment" bson:"comment"`
 
-	Asset  Currency             `json:"asset" bson:"asset"`
-	Amount primitive.Decimal128 `json:"amount" bson:"amount"`
-	Action TransferAction       `json:"action" bson:"action"`
+	Asset         Currency             `json:"asset" bson:"asset"`
+	AssetDecimals int32                `json:"assetDecimals" bson:"assetDecimals"`
+	Amount        primitive.Decimal128 `json:"amount" bson:"amount"`
+	Action        TransferAction       `json:"action" bson:"action"`
 
 	Fee            primitive.Decimal128 `json:"fee" bson:"fee"`
+	FeeDecimals    int32                `json:"feeDecimals" bson:"feeDecimals"`
 	FeePriceC      primitive.Decimal128 `json:"feePriceC" bson:"feePriceC"`
 	FeeCurrency    Currency             `json:"feeCurrency" bson:"feeCurrency"`
 	FeeC           primitive.Decimal128 `json:"feeC" bson:"feeC"`
@@ -165,9 +173,11 @@ func ProtoTransferToTransfer(t *proto.Transfer) Transfer {
 		Destination:    t.Destination,
 		Comment:        t.Comment,
 		Asset:          Currency(t.Asset),
+		AssetDecimals:  t.AssetDecimals,
 		Amount:         StrToDecimal(t.Amount),
 		Action:         TransferAction(t.Action),
 		Fee:            StrToDecimal(t.Fee),
+		FeeDecimals:    t.FeeDecimals,
 		FeePriceC:      StrToDecimal(t.FeePriceC),
 		FeeCurrency:    Currency(t.FeeCurrency),
 		FeeC:           StrToDecimal(t.FeeC),
@@ -188,9 +198,11 @@ func TransferToProtoTransfer(t Transfer) *proto.Transfer {
 		Destination:    t.Destination,
 		Comment:        t.Comment,
 		Asset:          string(t.Asset),
+		AssetDecimals:  t.AssetDecimals,
 		Amount:         t.Amount.String(),
 		Action:         proto.TransferAction(t.Action),
 		Fee:            t.Fee.String(),
+		FeeDecimals:    t.FeeDecimals,
 		FeePriceC:      t.FeePriceC.String(),
 		FeeCurrency:    string(t.FeeCurrency),
 		FeeC:           t.FeeC.String(),

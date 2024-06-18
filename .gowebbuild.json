@@ -21,6 +21,7 @@
       "./frontend/src/the-app.js",
       "./frontend/src/the-trades.js",
       "./frontend/src/the-transfers.js",
+      "./frontend/src/the-reports.js",
       "./frontend/src/the-settings.js",
       "./frontend/src/the-contributors.js",
       "./frontend/src/the-plugins.js",

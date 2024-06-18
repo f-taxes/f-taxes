@@ -79,6 +79,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         <tp-route path="/trades" data="trades"></tp-route>
         <tp-route path="/transfers" data="transfers"></tp-route>
         <tp-route path="/sources" data="sources"></tp-route>
+        <tp-route path="/reports" data="reports"></tp-route>
         <tp-route path="/plugins" data="plugins"></tp-route>
         <tp-route path="/settings" data="settings"></tp-route>
         <tp-route path="/contributors" data="contributors"></tp-route>
@@ -90,6 +91,7 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         ${page === 'trades' ? html`<the-trades .active=${page === 'trades'} .ws=${this.ws}></the-trades>` : null }
         ${page === 'transfers' ? html`<the-transfers .active=${page === 'transfers'} .ws=${this.ws}></the-transfers>` : null }
         ${page === 'sources' ? html`<the-sources .active=${page === 'sources'} .ws=${this.ws}></the-sources>` : null }
+        ${page === 'reports' ? html`<the-reports .active=${page === 'reports'} .ws=${this.ws}></the-reports>` : null }
         ${page === 'plugins' ? html`<the-plugins .active=${page === 'plugins'} .ws=${this.ws}></the-plugins>` : null }
         ${page === 'settings' ? html`<the-settings .active=${page === 'settings'}></the-settings>` : null }
         ${page === 'contributors' ? html`<the-contributors .active=${page === 'contributors'}></the-contributors>` : null }
@@ -138,6 +140,9 @@ class TheApp extends fetchMixin(Store(LitElement)) {
         ] },
         { match: /transfers/, imports: [
           '/assets/the-transfers.js'
+        ] },
+        { match: /reports/, imports: [
+          '/assets/the-reports.js'
         ] },
         { match: /plugins/, imports: [
           '/assets/the-plugins.js'

@@ -51,7 +51,8 @@
     },
     "web": {
       "address": "127.0.0.1:4103",
-      "configPage": "/config"
+      "configPage": "/config",
+      "reportPage": "/report"
     }
   },
   {

@@ -25,7 +25,7 @@ func NewCtlClient(name, conStr string) *CtlClient {
 	}
 }
 
-// Tries to connect to a plugin. Will sleep for 30s if it fails to connect and then try again to keep CPU usage in check.
+// Tries to connect to a plugin. Will sleep for 10s if it fails to connect and then try again to keep CPU usage in check.
 func (c *CtlClient) Connect() error {
 	for {
 		ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
@@ -36,7 +36,7 @@ func (c *CtlClient) Connect() error {
 
 		if err != nil {
 			golog.Errorf("%s: Failed to establish grpc connections: %v", c.name, err)
-			time.Sleep(time.Second * 30)
+			time.Sleep(time.Second * 10)
 			continue
 		}
 

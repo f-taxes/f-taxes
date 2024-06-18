@@ -12,8 +12,10 @@ import icons from './icons';
 import { LitElement, html, css } from 'lit';
 import { Store } from '@tp/tp-store/store.js'
 import shared from './styles/shared.js';
+import { parseISO, differenceInSeconds } from 'date-fns';
+import { fetchMixin } from '@tp/helpers/fetch-mixin.js';
 
-class TheMenu extends Store(LitElement) {
+class TheMenu extends Store(fetchMixin(LitElement)) {
   static get styles() {
     return [
       shared,
@@ -68,6 +70,47 @@ class TheMenu extends Store(LitElement) {
           animation-timing-function: ease-in-out;
         }
 
+        tp-button[warning] {
+          background: var(--amber);
+          color: var(--text-dark);
+        }
+
+        tp-button[warning] tp-icon {
+          --tp-icon-color: var(--text-dark);
+        }
+
+        .plugin-status-list {
+          padding: 10px;
+          border-radius: 4px;
+        }
+
+        .plugin-status {
+          display: flex;
+          align-items: center;
+          padding: 4px 10px;
+          color: var(--white);
+        }
+
+        .plugin-status .light {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          margin-right: 15px;
+          background: var(--red);
+        }
+
+        .plugin-status .light[on] {
+          background: var(--green);
+        }
+
+        .plugin-status .name {
+          opacity: 0.5;
+        }
+
+        .plugin-status .name[on] {
+          opacity: 1;
+        }
+
         @keyframes wiggle {
           0% {transform: rotate(10deg);}
           25% {transform: rotate(-10deg);}
@@ -80,7 +123,7 @@ class TheMenu extends Store(LitElement) {
   }
 
   render() {
-    const { items, notifCount } = this;
+    const { items, notifCount, pluginStatus } = this;
     const routeData = this.routeParams.join('-');
 
     return html`
@@ -98,6 +141,22 @@ class TheMenu extends Store(LitElement) {
             <the-notifications .ws=${this.ws} @notification-count=${this.updateNotifCount}></the-notifications>
           </div>
         </tp-popup>
+
+        <tp-popup>
+          <tp-button slot="toggle" class="status only-icon" ?warning=${pluginStatus.offline > 0}>
+            <tp-icon .icon=${icons.plugin}></tp-icon>
+            <div>${pluginStatus.online || 0} / ${pluginStatus.offline || 0}</div>
+          </tp-button>
+          <div class="plugin-status-list" slot="content">
+            ${pluginStatus.manifests.map(manifest => html`
+              <div class="plugin-status">
+                <div class="light" ?on=${this.isOnline(manifest)}></div>
+                <div class="name" ?on=${this.isOnline(manifest)}>${manifest.label} (${manifest.version})</div>
+              </div>
+            `)}
+          </div>
+        </tp-popup>
+
         ${items.map(item => html`
           <menu-button ?active=${item.match.test(routeData)} @click=${() => this.nav(item)}>${item.label}</menu-button>
         `)}
@@ -111,6 +170,7 @@ class TheMenu extends Store(LitElement) {
       routeParams: { type: Array },
       ws: { type: Object },
       notifCount: { type: Number },
+      pluginStatus: { type: Object },
     };
   }
 
@@ -119,15 +179,31 @@ class TheMenu extends Store(LitElement) {
     this.items = [
       { label: 'Trades', path: '/trades', match: /^trades.*/ },
       { label: 'Transfers', path: '/transfers', match: /^transfers.*/ },
+      { label: 'Reports', path: '/reports', match: /^reports.*/ },
       { label: 'Plugins', path: '/plugins', match: /^plugins.*/ },
       { label: 'Settings', path: '/settings', match: /^settings.*/ }
     ];
 
     this.routeParams = [];
 
+    this.pluginStatus = {
+      online: 0,
+      offline: 0,
+      manifests: []
+    };
+
     this.storeSubscribe([
       'routeParams'
     ]);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    
+    this.fetchPluginStatus();
+    setInterval(() => {
+      this.fetchPluginStatus();
+    }, 5000);
   }
 
   nav(item) {
@@ -148,6 +224,36 @@ class TheMenu extends Store(LitElement) {
     }
 
     this.notifCount = newCount;
+  }
+
+  async fetchPluginStatus() {
+    const resp = await this.post('/plugins/list', { onlyInstalled: true });
+    
+    if (resp.result) {
+      this.pluginStatus = {
+        online: 0,
+        offline: 0,
+        manifests: []
+      };
+      
+      for (const manifest of resp.data) {
+        this.pluginStatus.manifests.push(manifest);
+
+        if (manifest.lastHeartbeat) {
+          const diff = differenceInSeconds(new Date(), parseISO(manifest.lastHeartbeat));
+          
+          if (diff < 10) {
+            this.pluginStatus.online++;
+          } else {
+            this.pluginStatus.offline++;
+          }
+        }
+      }
+    }
+  }
+
+  isOnline(manifest) {
+    return differenceInSeconds(new Date(), parseISO(manifest.lastHeartbeat)) < 10
   }
 }
 

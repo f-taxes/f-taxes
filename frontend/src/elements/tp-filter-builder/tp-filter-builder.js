@@ -7,6 +7,7 @@ This program is available under Apache License Version 2.0
 import { LitElement, html, css, svg } from 'lit';
 import { debounce } from '@tp/helpers/debounce';
 import './tp-filter-builder-text.js';
+import './tp-filter-builder-number.js';
 import './tp-filter-builder-enum.js';
 import './tp-filter-builder-date.js';
 

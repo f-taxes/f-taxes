@@ -56,6 +56,42 @@ func RegisterRoutes(app *iris.Application) {
 		})
 	})
 
+	app.Post("/transfers/delete", func(ctx iris.Context) {
+		reqData := g.Query{
+			Filter: [][]g.Filter{},
+		}
+
+		if !g.ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		f, err := g.BuildFilter(reqData.Filter)
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to construct filter: %s. Please report this bug to the developers.", err.Error()), "Internal Error")
+			golog.Errorf("Failed to construct filter: %v", err)
+			ctx.JSON(g.Resp{
+				Result: false,
+				Data:   PaginationResult{},
+			})
+			return
+		}
+
+		result, err := g.DBConn.Collection(g.COL_TRANSFERS).RemoveAll(context.Background(), f)
+
+		if err != nil {
+			applog.Send(applog.Error, fmt.Sprintf("Failed to delete transfers: %s. Please report this bug to the developers.", err.Error()), "Internal Error")
+			golog.Errorf("Failed to delete transfers: %v", err)
+			ctx.StatusCode(iris.StatusInternalServerError)
+			return
+		}
+
+		applog.Send(applog.Info, fmt.Sprintf("%d transfers where deleted.", result.DeletedCount))
+
+		ctx.JSON(g.Resp{
+			Result: true,
+		})
+	})
+
 	app.Get("/transfers/clear", func(ctx iris.Context) {
 		err := g.DBConn.Collection(g.COL_TRANSFERS).DropCollection(context.Background())
 

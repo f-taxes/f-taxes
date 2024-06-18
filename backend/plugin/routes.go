@@ -26,8 +26,17 @@ func RegisterRoutes(app *iris.Application, cfg *koanf.Koanf) {
 
 	Manager.Start()
 
-	app.Get("/plugins/list", func(ctx iris.Context) {
-		availPlugins, err := Manager.List()
+	app.Post("/plugins/list", func(ctx iris.Context) {
+		reqData := struct {
+			Types         []string `json:"types"`
+			OnlyInstalled bool     `json:"onlyInstalled"`
+		}{}
+
+		if !ReadJSON(ctx, &reqData) {
+			return
+		}
+
+		availPlugins, err := Manager.List(reqData.OnlyInstalled, reqData.Types...)
 
 		if err != nil {
 			applog.Send(applog.Error, fmt.Sprintf("Failed to load plugin list from online registry. Please try again later: %v", err.Error()), "Internal Error")

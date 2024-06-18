@@ -4,6 +4,7 @@ Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
+import '@tp/tp-popup/tp-popup.js';
 import '@tp/tp-form/tp-form.js';
 import '@tp/tp-input/tp-input.js';
 import '@tp/tp-date-input/tp-date-input.js';
@@ -33,108 +34,141 @@ class TradeEditor extends fetchMixin(LitElement) {
         tp-form tp-dropdown {
           margin-bottom: 0;
         }
+
+        .baseline {
+          align-self: baseline;
+        }
+
+        tp-checkbox + tp-checkbox {
+          margin-top: 10px;
+        }
       `
     ];
   }
 
   render() {
-    const tx = this.tx || {}
+    const trade = this.tx || {}
 
     return html`
       <tp-form @submit=${this.save}>
         <form>
           <div class="grid">
-            <input type="hidden" name="_id" .value=${tx._id || ''}>
+            <input type="hidden" name="_id" .value=${trade._id || ''}>
 
             <label>*Account</label>
-            <tp-input name="account" .value=${tx.account} required errorMessage="required">
+            <tp-input name="account" .value=${trade.account} required errorMessage="required">
               <input type="text">
             </tp-input>
 
             <label>TxID</label>
-            <tp-input name="txId" .value=${tx.txId}>
+            <tp-input name="txId" .value=${trade.txId}>
               <input type="text">
             </tp-input>
   
             <label>*Timestamp</label>
-            <tp-input name="ts" .value=${typeof tx.ts == 'string' ? tx.ts : tx.ts?.toISOString() || new Date().toISOString()} required errorMessage="required">
+            <tp-input name="ts" .value=${typeof trade.ts == 'string' ? trade.ts : trade.ts?.toISOString() || new Date().toISOString()} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>Ticker</label>
-            <tp-input name="ticker" .value=${tx.ticker}>
+            <tp-input name="ticker" .value=${trade.ticker}>
               <input type="text">
             </tp-input>
   
             <label>*Quote</label>
-            <tp-input name="quote" .value=${tx.quote} required errorMessage="required">
+            <tp-input name="quote" .value=${trade.quote} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>*Asset</label>
-            <tp-input name="asset" .value=${tx.asset} required errorMessage="required">
+            <tp-input name="asset" .value=${trade.asset} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>*Price</label>
-            <tp-input name="price" .value=${tx.price} required errorMessage="required">
+            <tp-input name="price" .value=${trade.price} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>Price Converted</label>
-            <tp-input name="priceC" .value=${tx.priceC}>
+            <tp-input name="priceC" .value=${trade.priceC}>
               <input type="text">
             </tp-input>
   
             <label>*Amount</label>
-            <tp-input name="amount" .value=${tx.amount} required errorMessage="required">
+            <tp-input name="amount" .value=${trade.amount} required errorMessage="required">
+              <input type="text">
+            </tp-input>
+
+            <label>Quote Price Converted</label>
+            <tp-input name="quotePriceC" .value=${trade.quotePriceC} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>*Fee</label>
-            <tp-input name="fee" .value=${tx.fee} required errorMessage="required">
+            <tp-input name="fee" .value=${trade.fee || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
 
             <label>*Fee Price Converted</label>
-            <tp-input name="feePriceC" .value=${tx.feePriceC} required errorMessage="required">
+            <tp-input name="feePriceC" .value=${trade.feePriceC || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>*Fee Currency</label>
-            <tp-input name="feeCurrency" .value=${tx.feeCurrency} required errorMessage="required">
+            <tp-input name="feeCurrency" .value=${trade.feeCurrency} required errorMessage="required">
+              <input type="text">
+            </tp-input>
+
+            <label>*Quote Fee</label>
+            <tp-input name="quoteFee" .value=${trade.quoteFee || 0} required errorMessage="required">
+              <input type="text">
+            </tp-input>
+
+            <label>*Quote Fee Price Converted</label>
+            <tp-input name="quoteFeePriceC" .value=${trade.quoteFeePriceC || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
   
-            <label>Fee Rate</label>
-            <tp-input name="feeRate" .value=${tx.feeRate}>
+            <label>Quote Fee Currency</label>
+            <tp-input name="quoteFeeCurrency" .value=${trade.quoteFeeCurrency}>
               <input type="text">
             </tp-input>
   
             <label>*Action</label>
-            <tp-dropdown name="action" .value=${tx.action} .items=${[{ value: 0, label: 'Buy' }, { value: 1, label: 'Sell' }]} .default=${0} required></tp-dropdown>
+            <tp-dropdown name="action" .value=${trade.action} .items=${[{ value: 0, label: 'Buy' }, { value: 1, label: 'Sell' }]} .default=${0} required></tp-dropdown>
   
             <label>*Order Type</label>
-            <tp-dropdown name="orderType" .value=${tx.orderType} .items=${[{ value: 0, label: 'Taker' }, { value: 1, label: 'Maker' }]} .default=${0} required></tp-dropdown>
+            <tp-dropdown name="orderType" .value=${trade.orderType} .items=${[{ value: 0, label: 'Taker' }, { value: 1, label: 'Maker' }]} .default=${0} required></tp-dropdown>
   
             <label>Order ID</label>
-            <tp-input name="orderId" .value=${tx.orderId}>
+            <tp-input name="orderId" .value=${trade.orderId}>
               <input type="text">
             </tp-input>
   
-            <label>*Asset Type</label>
-            <tp-dropdown name="assetType" .value=${tx.assetType} .items=${[{ value: 0, label: 'Spot' }, { value: 1, label: 'Futures' }]} .default=${0} required></tp-dropdown>
+            <label class="baseline">Properties</label>
+            <div>
+              <tp-checkbox name="props.isMarginTrade" .checked=${trade.props?.isMarginTrade}>Is Margin Trade</tp-checkbox>
+              <tp-checkbox name="props.isDerivative" .checked=${trade.props?.isDerivative}>Is Derivative Market</tp-checkbox>
+              <tp-checkbox name="props.isPhysical" .checked=${trade.props?.isPhysical}>Is Physical Market</tp-checkbox>
+            </div>
   
             <label>Comment</label>
-            <tp-input name="comment" .value=${tx.comment}>
+            <tp-input name="comment" .value=${trade.comment}>
               <input type="text">
             </tp-input>
           </div>
 
           <div class="buttons-justified">
             <tp-button dialog-dismiss @click=${this.reset}>Cancel</tp-button>
-            <tp-button submit>${tx._id ? 'Save' : 'Create'}</tp-button>
-            <tp-button submit close>${tx._id ? 'Save & Close' : 'Create & Close'}</tp-button>
+            ${trade._id ? html`
+            <tp-popup valign="top">
+              <tp-button slot="toggle" class="danger">Delete</tp-button>
+              <tp-button slot="content" class="danger" submit delete>Yes, Delete Now!</tp-button>
+            </tp-popup>
+            ` : null}
+            <tp-button submit>${trade._id ? 'Save' : 'Create'}</tp-button>
+            <tp-button submit close>${trade._id ? 'Save & Close' : 'Create & Close'}</tp-button>
           </div>
         </form>
       </tp-form>
@@ -154,6 +188,18 @@ class TradeEditor extends fetchMixin(LitElement) {
   async save(e) {
     const btn = e.target.submitButton;
     btn.showSpinner();
+
+    if (btn.hasAttribute('delete')) {
+      const resp = await this.post('/trades/manually/delete', { _id: e.detail._id });
+
+      if (resp.result) {
+        btn.showSuccess();
+        this.dispatchEvent(new CustomEvent('dialog-close', { detail: null, bubbles: true, composed: true }));
+      } else {
+        btn.showError();
+      }
+      return;
+    }
 
     const resp = await this.post('/trades/manually/save', e.detail);
 

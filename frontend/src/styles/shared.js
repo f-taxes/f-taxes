@@ -132,7 +132,7 @@ export default css`
     justify-content: space-between;
   }
 
-  .buttons-justified tp-button + tp-button {
+  .buttons-justified > tp-button + tp-button {
     margin-left: 20px;
   }
 

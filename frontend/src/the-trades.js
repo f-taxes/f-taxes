@@ -4,10 +4,10 @@ Copyright (c) 2024 trading_peter
 This program is available under Apache License Version 2.0
 */
 
+import '@tp/tp-icon/tp-icon.js';
 import '@tp/tp-popup/tp-popup.js';
 import '@tp/tp-popup/tp-popup-menu.js';
 import '@tp/tp-popup/tp-popup-menu-item.js';
-import '@tp/tp-table/tp-table.js';
 import '@tp/tp-dialog/tp-dialog.js';
 import '@tp/tp-date-input/tp-date-input.js';
 import './elements/column-manager.js';
@@ -16,6 +16,7 @@ import './elements/trade-row.js';
 import './elements/trade-editor.js';
 import './elements/tp-filter-builder/tp-filter-builder.js';
 import './elements/cb-options.js';
+import { TpTable } from '@tp/tp-table/tp-table.js';
 import { LitElement, html, css } from 'lit';
 import { fetchMixin } from '@tp/helpers/fetch-mixin';
 import { Store } from '@tp/tp-store/store';
@@ -53,7 +54,7 @@ class TheTrades extends BaseElement {
     return html`
       <div class="tools">
         <div>
-          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions} @filters-changed=${this.applyFilter}></tp-filter-builder>
+          <tp-filter-builder .fields=${filterFields} .defaultOptions=${defaultOptions} @filters-changed=${this.applyFilter} @filters-cleared=${this.applyFilter}></tp-filter-builder>
         </div>
         <div>
           <tp-button @click=${() => this.showTxEditor()}>
@@ -65,6 +66,7 @@ class TheTrades extends BaseElement {
             <tp-icon slot="toggle" tooltip="Tools" .icon=${icons.tools}></tp-icon>
             <tp-popup-menu slot="content">
               <tp-popup-menu-item .icon=${icons.money} @click=${() => this.$.costBasisDialog.show()}>Cost-Basis</tp-popup-menu-item>
+              <tp-popup-menu-item .icon=${icons.delete} @click=${() => this.$.deleteFilteredDialog.show()}>Delete All Trades (as filtered)</tp-popup-menu-item>
             </tp-popup-menu>
           </tp-popup>
 
@@ -79,7 +81,8 @@ class TheTrades extends BaseElement {
         .items=${items}
         @dblclick=${this.tableDoubleClick}
         @sorting-changed=${e => this.sortingChanged(e)}
-        @column-width-changed=${e => this.colWidthChanged(e)}>
+        @column-width-changed=${e => this.colWidthChanged(e)}
+        @toggle-row-mark=${this.toggleRowMark}>
       </tp-table>
       <pagination-bar .stats=${pageStats} @next-page=${this.nextPage} @prev-page=${this.prevPage} @goto-page=${this.goto}></pagination-bar>
 
@@ -89,6 +92,15 @@ class TheTrades extends BaseElement {
 
       <tp-dialog id="costBasisDialog">
         <cb-options .ws=${ws} target="trades" .filter=${this.activeFilter || []}></cb-options>
+      </tp-dialog>
+
+      <tp-dialog id="deleteFilteredDialog">
+        <h3>Please Confirm</h3>
+        <p>Delete all trades as currently filtered?</p>
+        <div class="buttons-justified">
+          <tp-button dialog-dismiss>Cancel</tp-button>
+          <tp-button class="danger" @click=${this.deleteFilteredTrades} extended>Yes, Delete Trades</tp-button>
+        </div>
       </tp-dialog>
     `;
   }
@@ -102,6 +114,7 @@ class TheTrades extends BaseElement {
       defaultOptions: { type: Object },
       selTrade: { type: Object },
       activeFilter: { type: Array },
+      markedRows: { type: Object },
     };
   }
 
@@ -109,11 +122,20 @@ class TheTrades extends BaseElement {
     super();
     this.pagination = new Pagination(1, 5000, 'ts', 'asc');
     this.selTrade = {};
+    this.markedRows = new Set();
 
     this.storeSubscribe([
       'settings',
       'srcConnections'
     ]);
+  }
+
+  get table() {
+    if (this._table === undefined) {
+      this._table = this.shadowRoot.querySelector('tp-table');
+    }
+    
+    return this._table;
   }
 
   shouldUpdate(changes) {
@@ -124,8 +146,8 @@ class TheTrades extends BaseElement {
   firstUpdated() {
     super.firstUpdated();
 
-    this.columns = this.settings.trades.columns;
-    this.shadowRoot.querySelector('tp-table').renderItem = this.renderItem.bind(this);
+    this.setColumns();
+    this.table.renderItem = this.renderItem.bind(this);
     this.fetchTrades();
   }
 
@@ -133,7 +155,7 @@ class TheTrades extends BaseElement {
     super.storeUpdated(key, newValue, targetProperty);
   
     if (key === 'settings') {
-      this.columns = this.settings.trades.columns;
+      this.setColumns();
       const pagS = this.settings.trades.pagination;
       this.pagination.setPage(pagS.page);
 
@@ -157,8 +179,20 @@ class TheTrades extends BaseElement {
       { name: 'ticker', label: 'Ticker', type: 'text' },
       { name: 'asset', label: 'Asset', type: 'text' },
       { name: 'quote', label: 'Quote', type: 'text' },
+      { name: 'price', label: 'Price', type: 'number' },
+      { name: 'priceC', label: 'Price C', type: 'number' },
+      { name: 'amount', label: 'Amount', type: 'number' },
+      { name: 'value', label: 'Value', type: 'number' },
+      { name: 'fee', label: 'Fee', type: 'number' },
+      { name: 'feeC', label: 'Fee C', type: 'number' },
+      { name: 'quoteFee', label: 'Quote Fee', type: 'number' },
+      { name: 'quoteFeeC', label: 'Quote Fee C', type: 'number' },
       { name: 'side', label: 'Side', type: 'enum', enums: [ { value: 'buy', label: 'Buy' }, { value: 'sell', label: 'Sell' } ] }
     ];
+  }
+
+  setColumns() {
+    this.columns = this.settings.trades.columns;
   }
 
   onMsg(msg) {
@@ -179,6 +213,7 @@ class TheTrades extends BaseElement {
       <trade-row
         exportparts="cell,odd,row"
         item
+        ?marked=${this.markedRows.has(item._id)}
         .index=${idx}
         .item=${item}
         .selectable=${this.selectable}
@@ -189,7 +224,7 @@ class TheTrades extends BaseElement {
   }
 
   async fetchTrades() {
-    this.shadowRoot.querySelector('tp-table').sorting = { column: this.pagination.sortBy, direction: this.pagination.sortDir };
+    this.table.sorting = { column: this.pagination.sortBy, direction: this.pagination.sortDir };
     const resp = await this.post('/trades/page', this.pagination.value, true);
     this.items = resp.data.items;
     this.pageStats = resp.data;
@@ -247,6 +282,30 @@ class TheTrades extends BaseElement {
   showTxEditor() {
     this.selTrade = {};
     this.$.tradeEditorDialog.show();
+  }
+
+  toggleRowMark(e) {
+    const id = e.detail;
+    if (this.markedRows.has(id)) {
+      this.markedRows.delete(id);
+    } else {
+      this.markedRows.add(id);
+    }
+    this.table.requestUpdate();
+  }
+
+  async deleteFilteredTrades() {
+    const resp = await this.post('/trades/delete', { filter: this.pagination.value.filter }, true);
+    const btn = this.$.deleteFilteredDialog.querySelector('tp-button.danger');
+    btn.showSpinner();
+
+    if (resp.result) {
+      btn.showSuccess();
+      this.$.deleteFilteredDialog.close();
+      this.fetchTrades();
+    } else {
+      btn.showError();
+    }
   }
 }
 

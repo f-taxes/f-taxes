@@ -28,13 +28,14 @@ const BaseElement = mixins.reduce((baseClass, mixin) => {
   return mixin(baseClass);
 }, LitElement);
 
-class ThePlugins extends BaseElement {
+class TheReports extends BaseElement {
   static get styles() {
     return [
       shared,
       css`
         :host {
-          display: block;
+          display: flex;
+          flex-direction: column;
           flex: 1;
           padding: 20px;
         }
@@ -141,7 +142,13 @@ class ThePlugins extends BaseElement {
           position: absolute;
           inset: 30px 0;
         }
+        
+        .frame-page {
+          display: flex;
+          flex: 1;
+        }
 
+        #reportFrame,
         #settingsFrame {
           flex: 1;
         }
@@ -154,9 +161,8 @@ class ThePlugins extends BaseElement {
 
     return html`
       <card-box>
-        <h2>Plugins allow you to extend F-Taxes with new data sources for your tax reports.<br>All thanks to community contributions.</h2>
         <header>
-          <h3>We found ${plugins.length} plugins</h3>
+          <h3>We found ${plugins.length} report plugins</h3>
           <tp-button id="reloadBtn" @click=${this.reloadList} extended>Reload <tp-icon .icon=${icons.refresh}></tp-icon></tp-button>
         </header>
         <div class="list">
@@ -183,43 +189,26 @@ class ThePlugins extends BaseElement {
                 <div><label>Status:</label>${this.pluginStatusToString(plugin.status)}</div>
               </div>
               <div class="actions">
+                ${plugin.web?.reportPage ? html`
+                  <tp-tooltip-wrapper text="Start creating reports using this plugin" tooltipValign="top">
+                    <tp-button class="only-icon" extended @click=${e => this.showReportPage(e, plugin)}><tp-icon .icon=${icons.play}></tp-icon></tp-button>
+                  </tp-tooltip-wrapper>
+                ` : null}
+
                 ${plugin.web?.configPage ? html`
                   <tp-tooltip-wrapper text="Show configuration page for this plugin" tooltipValign="top">
                     <tp-button class="only-icon" extended @click=${e => this.showSettings(e, plugin)}><tp-icon .icon=${icons.settings}></tp-icon></tp-button>
                   </tp-tooltip-wrapper>
                 ` : null}
-
-                ${plugin.status == 1 ? html`
-                  <tp-tooltip-wrapper text="Install this plugin" tooltipValign="top">
-                    <tp-button class="only-icon" extended @click=${e => this.install(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
-                  </tp-tooltip-wrapper>
-                ` : null}
-
-                ${plugin.status == 2 ? html`
-                  <tp-tooltip-wrapper text="Update this plugin" tooltipValign="top">
-                    <tp-button class="only-icon" extended @click=${e => this.updatePlugin(e, plugin)}><tp-icon .icon=${icons.download}></tp-icon></tp-button>
-                  </tp-tooltip-wrapper>
-                ` : null}
-
-                ${plugin.status == 0 ? html`
-                  <tp-tooltip-wrapper text="Uninstall this plugin" tooltipValign="top">
-                    <tp-button class="only-icon" extended @click=${() => this.confirmUninstall(plugin)}><tp-icon .icon=${icons.delete}></tp-icon></tp-button>
-                  </tp-tooltip-wrapper>
-                ` : null}
               </div>
             </div>
-          `): html`<div class="empty">Please wait until the list of available plugins was loaded...</div>`}
+          `): html`<div class="empty">Please wait until the list of available report plugins was loaded...</div>`}
         </div>
       </card-box>
 
-      <tp-dialog id="uninstallPluginDialog" showClose>
-        <h2>Confirm removal</h2>
-        <p>Do you want to remove the plugin "${this.selPlugins.label}"?<br>This will also delete all associated records and api connections.</p>
-        <div class="buttons-justified">
-          <tp-button dialog-dismiss>Cancel</tp-button>
-          <tp-button class="danger" @click=${() => this.uninstallPlugin()}>Yes, Remove</tp-button>
-        </div>
-      </tp-dialog>
+      <div class="frame-page">
+        <iframe id="reportFrame" src="" frameborder="0"></iframe>
+      </div>
 
       <tp-dialog id="pluginSettingsDialog" showClose>
         <div class="frame-wrap">
@@ -259,7 +248,7 @@ class ThePlugins extends BaseElement {
       btn.showSpinner();
     }
 
-    const resp = await this.post('/plugins/list', { onlyInstalled: false });
+    const resp = await this.post('/plugins/list', { onlyInstalled: true, types: [ 'Report' ] });
     
     if (resp.result) {
       if (btn) {
@@ -323,10 +312,13 @@ class ThePlugins extends BaseElement {
   }
 
   showSettings(e, plugin) {
-    console.log(plugin);
     this.$.settingsFrame.src = `http://${plugin.web.address}${plugin.web.configPage}`;
     this.$.pluginSettingsDialog.show();
   }
+
+  showReportPage(e, plugin) {
+    this.$.reportFrame.src = `http://${plugin.web.address}${plugin.web.reportPage}`;
+  }
 }
 
-window.customElements.define('the-plugins', ThePlugins);
+window.customElements.define('the-reports', TheReports);
