@@ -122,8 +122,8 @@ func RegisterRoutes(app *iris.Application) {
 
 		tx.Value = tx.Amount.Mul(tx.Price)
 		tx.ValueC = tx.Amount.Mul(tx.PriceC)
-		tx.FeeC = tx.Fee.Mul(tx.FeePriceC)
-		tx.QuoteFeeC = tx.QuoteFee.Mul(tx.QuoteFeePriceC)
+		tx.Fee.AmountC = tx.Fee.Amount.Mul(tx.Fee.PriceC)
+		tx.QuoteFee.AmountC = tx.QuoteFee.Amount.Mul(tx.QuoteFee.PriceC)
 
 		_, err := g.DBConn.Collection(g.COL_TRADES).UpsertId(context.Background(), tx.ID, tx)
 		if err != nil {
@@ -255,23 +255,23 @@ func RegisterRoutes(app *iris.Application) {
 				priceC := g.StrToDecimal(updatedTrade.PriceC, decimal.Zero)
 				valueC := g.StrToDecimal(updatedTrade.ValueC, decimal.Zero)
 				quotePriceC := g.StrToDecimal(updatedTrade.QuotePriceC, decimal.Zero)
-				feeC := g.StrToDecimal(updatedTrade.FeeC, decimal.Zero)
-				feePriceC := g.StrToDecimal(updatedTrade.FeePriceC, decimal.Zero)
-				quoteFeeC := g.StrToDecimal(updatedTrade.QuoteFeeC, decimal.Zero)
-				quoteFeePriceC := g.StrToDecimal(updatedTrade.QuoteFeePriceC, decimal.Zero)
+				feeC := g.StrToDecimal(updatedTrade.Fee.AmountC, decimal.Zero)
+				feePriceC := g.StrToDecimal(updatedTrade.Fee.PriceC, decimal.Zero)
+				quoteFeeC := g.StrToDecimal(updatedTrade.QuoteFee.AmountC, decimal.Zero)
+				quoteFeePriceC := g.StrToDecimal(updatedTrade.QuoteFee.PriceC, decimal.Zero)
 
 				err = col.UpdateOne(context.Background(), bson.M{"_id": t.ID}, bson.M{
 					"$set": bson.M{
-						"priceC":              g.DecimalToMongoDecimal(priceC),
-						"valueC":              g.DecimalToMongoDecimal(valueC),
-						"quotePriceC":         g.DecimalToMongoDecimal(quotePriceC),
-						"priceConvertedBy":    updatedTrade.PriceConvertedBy,
-						"feeC":                g.DecimalToMongoDecimal(feeC),
-						"feePriceC":           g.DecimalToMongoDecimal(feePriceC),
-						"feeConvertedBy":      updatedTrade.FeeConvertedBy,
-						"quoteFeeC":           g.DecimalToMongoDecimal(quoteFeeC),
-						"quoteFeePriceC":      g.DecimalToMongoDecimal(quoteFeePriceC),
-						"quoteFeeConvertedBy": updatedTrade.QuoteFeeConvertedBy,
+						"priceC":               g.DecimalToMongoDecimal(priceC),
+						"valueC":               g.DecimalToMongoDecimal(valueC),
+						"quotePriceC":          g.DecimalToMongoDecimal(quotePriceC),
+						"priceConvertedBy":     updatedTrade.PriceConvertedBy,
+						"fee.amountC":          g.DecimalToMongoDecimal(feeC),
+						"fee.priceC":           g.DecimalToMongoDecimal(feePriceC),
+						"fee.convertedBy":      updatedTrade.Fee.ConvertedBy,
+						"quoteFee.amountC":     g.DecimalToMongoDecimal(quoteFeeC),
+						"quoteFee.priceC":      g.DecimalToMongoDecimal(quoteFeePriceC),
+						"quoteFee.convertedBy": updatedTrade.QuoteFee.ConvertedBy,
 					},
 				})
 

@@ -29,60 +29,56 @@ const (
 	MAKER = OrderType(1)
 )
 
-type TradeProps struct {
+type Props struct {
 	IsMarginTrade bool `json:"isMarginTrade" bson:"isMarginTrade"`
 	IsDerivative  bool `json:"isDerivative" bson:"isDerivative"`
 	IsPhysical    bool `json:"isPhysical" bson:"isPhysical"`
 }
 
+type Cost struct {
+	Name        string          `json:"name" bson:"name"`
+	Currency    string          `json:"currency" bson:"currency"`
+	Amount      decimal.Decimal `json:"amount" bson:"amount"`
+	AmountC     decimal.Decimal `json:"amountC" bson:"amountC"`
+	Price       decimal.Decimal `json:"price" bson:"price"`
+	PriceC      decimal.Decimal `json:"priceC" bson:"priceC"`
+	Decimals    int32           `json:"decimals" bson:"decimals"`
+	ConvertedBy string          `json:"convertedBy" bson:"convertedBy"`
+}
+
 // Describes a single trade were some asset was either bought or sold
 // Fields ending with "C" are values converted to the selected costbases currency.
 type Trade struct {
-	ID      primitive.ObjectID `json:"_id" bson:"_id"`
-	TxID    string             `json:"txId" bson:"txId"`
-	Ts      time.Time          `json:"ts" bson:"ts"`
-	Account string             `json:"account" bson:"account"`
-	Comment string             `json:"comment" bson:"comment"`
-
-	Ticker string   `json:"ticker" bson:"ticker"`
-	Quote  Currency `json:"quote" bson:"quote"`
-	Asset  Currency `json:"asset" bson:"asset"`
-
-	Price                 decimal.Decimal `json:"price" bson:"price"`
-	PriceC                decimal.Decimal `json:"priceC" bson:"priceC"`
-	PriceConvertedBy      string          `json:"priceConvertedBy" bson:"priceConvertedBy"`
-	QuotePriceC           decimal.Decimal `json:"quotePriceC" bson:"quotePriceC"`
-	QuotePriceConvertedBy string          `json:"quotePriceConvertedBy" bson:"quotePriceConvertedBy"`
-	Amount                decimal.Decimal `json:"amount" bson:"amount"`
-	Value                 decimal.Decimal `json:"value" bson:"value"`
-	ValueC                decimal.Decimal `json:"valueC" bson:"valueC"`
-	Action                TradeAction     `json:"action" bson:"action"`
-	OrderType             OrderType       `json:"orderType" bson:"orderType"`
-	OrderID               string          `json:"orderId" bson:"orderId"`
-
-	Fee            decimal.Decimal `json:"fee" bson:"fee"`
-	FeeCurrency    Currency        `json:"feeCurrency" bson:"feeCurrency"`
-	FeePriceC      decimal.Decimal `json:"feePriceC" bson:"feePriceC"` // Price of the fee converted. Lets say the fee is quoted in SOL. FeePriceC would be the price of SOL at the time of trade.
-	FeeC           decimal.Decimal `json:"feeC" bson:"feeC"`
-	FeeConvertedBy string          `json:"feeConvertedBy" bson:"feeConvertedBy"`
-
-	QuoteFee            decimal.Decimal `json:"quoteFee" bson:"quoteFee"`
-	QuoteFeePriceC      decimal.Decimal `json:"quoteFeePriceC" bson:"quoteFeePriceC"`
-	QuoteFeeCurrency    Currency        `json:"quoteFeeCurrency" bson:"quoteFeeCurrency"`
-	QuoteFeeC           decimal.Decimal `json:"quoteFeeC" bson:"quoteFeeC"`
-	QuoteFeeConvertedBy string          `json:"quoteFeeConvertedBy" bson:"quoteFeeConvertedBy"`
-
-	AssetDecimals    int32 `json:"assetDecimals" bson:"assetDecimals"`
-	QuoteDecimals    int32 `json:"quoteDecimals" bson:"quoteDecimals"`
-	FeeDecimals      int32 `json:"feeDecimals" bson:"feeDecimals"`
-	QuoteFeeDecimals int32 `json:"quoteFeeDecimals" bson:"quoteFeeDecimals"`
-
-	Props TradeProps `json:"props" bson:"props"`
-
-	Plugin        string    `json:"plugin" bson:"plugin"`
-	PluginVersion string    `json:"pluginVersion" bson:"pluginVersion"`
-	Created       time.Time `json:"created" bson:"created"`
-	Updated       time.Time `json:"updated" bson:"updated"`
+	ID                    primitive.ObjectID `json:"_id" bson:"_id"`
+	TxID                  string             `json:"txId" bson:"txId"`
+	Ts                    time.Time          `json:"ts" bson:"ts"`
+	Account               string             `json:"account" bson:"account"`
+	Comment               string             `json:"comment" bson:"comment"`
+	Ticker                string             `json:"ticker" bson:"ticker"`
+	Quote                 Currency           `json:"quote" bson:"quote"`
+	Asset                 Currency           `json:"asset" bson:"asset"`
+	Price                 decimal.Decimal    `json:"price" bson:"price"`
+	PriceC                decimal.Decimal    `json:"priceC" bson:"priceC"`
+	PriceConvertedBy      string             `json:"priceConvertedBy" bson:"priceConvertedBy"`
+	QuotePriceC           decimal.Decimal    `json:"quotePriceC" bson:"quotePriceC"`
+	QuotePriceConvertedBy string             `json:"quotePriceConvertedBy" bson:"quotePriceConvertedBy"`
+	Amount                decimal.Decimal    `json:"amount" bson:"amount"`
+	Value                 decimal.Decimal    `json:"value" bson:"value"`
+	ValueC                decimal.Decimal    `json:"valueC" bson:"valueC"`
+	Action                TradeAction        `json:"action" bson:"action"`
+	OrderType             OrderType          `json:"orderType" bson:"orderType"`
+	OrderID               string             `json:"orderId" bson:"orderId"`
+	Fee                   Cost               `json:"fee" bson:"fee"`
+	QuoteFee              Cost               `json:"quoteFee" bson:"quoteFee"`
+	AssetDecimals         int32              `json:"assetDecimals" bson:"assetDecimals"`
+	QuoteDecimals         int32              `json:"quoteDecimals" bson:"quoteDecimals"`
+	FeeDecimals           int32              `json:"feeDecimals" bson:"feeDecimals"`
+	QuoteFeeDecimals      int32              `json:"quoteFeeDecimals" bson:"quoteFeeDecimals"`
+	Props                 Props              `json:"props" bson:"props"`
+	Plugin                string             `json:"plugin" bson:"plugin"`
+	PluginVersion         string             `json:"pluginVersion" bson:"pluginVersion"`
+	Created               time.Time          `json:"created" bson:"created"`
+	Updated               time.Time          `json:"updated" bson:"updated"`
 }
 
 func (t Trade) GetTs() time.Time {
@@ -91,16 +87,14 @@ func (t Trade) GetTs() time.Time {
 
 func (t Trade) MarshalBSON() ([]byte, error) {
 	data, err := bson.Marshal(tradeDoc{
-		ID:      t.ID,
-		TxID:    t.TxID,
-		Ts:      t.Ts,
-		Account: t.Account,
-		Comment: t.Comment,
-
-		Ticker: t.Ticker,
-		Quote:  t.Quote,
-		Asset:  t.Asset,
-
+		ID:                    t.ID,
+		TxID:                  t.TxID,
+		Ts:                    t.Ts,
+		Account:               t.Account,
+		Comment:               t.Comment,
+		Ticker:                t.Ticker,
+		Quote:                 t.Quote,
+		Asset:                 t.Asset,
 		Price:                 DecimalToMongoDecimal(t.Price),
 		PriceC:                DecimalToMongoDecimal(t.PriceC),
 		PriceConvertedBy:      t.PriceConvertedBy,
@@ -112,26 +106,29 @@ func (t Trade) MarshalBSON() ([]byte, error) {
 		Action:                t.Action,
 		OrderType:             t.OrderType,
 		OrderID:               t.OrderID,
-
-		Fee:            DecimalToMongoDecimal(t.Fee),
-		FeePriceC:      DecimalToMongoDecimal(t.FeePriceC),
-		FeeCurrency:    t.FeeCurrency,
-		FeeC:           DecimalToMongoDecimal(t.FeeC),
-		FeeConvertedBy: t.FeeConvertedBy,
-
-		QuoteFee:            DecimalToMongoDecimal(t.QuoteFee),
-		QuoteFeePriceC:      DecimalToMongoDecimal(t.QuoteFeePriceC),
-		QuoteFeeCurrency:    t.QuoteFeeCurrency,
-		QuoteFeeC:           DecimalToMongoDecimal(t.QuoteFeeC),
-		QuoteFeeConvertedBy: t.QuoteFeeConvertedBy,
-
-		AssetDecimals:    t.AssetDecimals,
-		QuoteDecimals:    t.QuoteDecimals,
-		FeeDecimals:      t.FeeDecimals,
-		QuoteFeeDecimals: t.QuoteFeeDecimals,
-
-		Props: t.Props,
-
+		Fee: CostDoc{
+			Name:        t.Fee.Name,
+			Currency:    t.Fee.Currency,
+			Amount:      DecimalToMongoDecimal(t.Fee.Amount),
+			AmountC:     DecimalToMongoDecimal(t.Fee.AmountC),
+			Price:       DecimalToMongoDecimal(t.Fee.Price),
+			PriceC:      DecimalToMongoDecimal(t.Fee.PriceC),
+			Decimals:    t.Fee.Decimals,
+			ConvertedBy: t.Fee.ConvertedBy,
+		},
+		QuoteFee: CostDoc{
+			Name:        t.QuoteFee.Name,
+			Currency:    t.QuoteFee.Currency,
+			Amount:      DecimalToMongoDecimal(t.QuoteFee.Amount),
+			AmountC:     DecimalToMongoDecimal(t.QuoteFee.AmountC),
+			Price:       DecimalToMongoDecimal(t.QuoteFee.Price),
+			PriceC:      DecimalToMongoDecimal(t.QuoteFee.PriceC),
+			Decimals:    t.QuoteFee.Decimals,
+			ConvertedBy: t.QuoteFee.ConvertedBy,
+		},
+		AssetDecimals: t.AssetDecimals,
+		QuoteDecimals: t.QuoteDecimals,
+		Props:         t.Props,
 		Plugin:        t.Plugin,
 		PluginVersion: t.PluginVersion,
 		Created:       t.Created,
@@ -176,43 +173,58 @@ func (t *Trade) UnmarshalBSON(b []byte) error {
 	t.OrderType = d.OrderType
 	t.OrderID = d.OrderID
 
-	t.Fee = decimal.RequireFromString(d.Fee.String())
-	t.FeePriceC = decimal.RequireFromString(d.FeePriceC.String())
-	t.FeeCurrency = d.FeeCurrency
-	t.FeeC = decimal.RequireFromString(d.FeeC.String())
-	t.FeeConvertedBy = d.FeeConvertedBy
+	t.Fee = Cost{
+		Name:        d.Fee.Name,
+		Currency:    d.Fee.Currency,
+		Amount:      decimal.RequireFromString(d.Fee.Amount.String()),
+		AmountC:     decimal.RequireFromString(d.Fee.AmountC.String()),
+		Price:       decimal.RequireFromString(d.Fee.Price.String()),
+		PriceC:      decimal.RequireFromString(d.Fee.PriceC.String()),
+		Decimals:    d.Fee.Decimals,
+		ConvertedBy: d.Fee.ConvertedBy,
+	}
 
-	t.QuoteFee = decimal.RequireFromString(d.QuoteFee.String())
-	t.QuoteFeePriceC = decimal.RequireFromString(d.QuoteFeePriceC.String())
-	t.QuoteFeeCurrency = d.QuoteFeeCurrency
-	t.QuoteFeeC = decimal.RequireFromString(d.QuoteFeeC.String())
-	t.QuoteFeeConvertedBy = d.QuoteFeeConvertedBy
+	t.QuoteFee = Cost{
+		Name:        d.QuoteFee.Name,
+		Currency:    d.QuoteFee.Currency,
+		Amount:      decimal.RequireFromString(d.QuoteFee.Amount.String()),
+		AmountC:     decimal.RequireFromString(d.QuoteFee.AmountC.String()),
+		Price:       decimal.RequireFromString(d.QuoteFee.Price.String()),
+		PriceC:      decimal.RequireFromString(d.QuoteFee.PriceC.String()),
+		Decimals:    d.QuoteFee.Decimals,
+		ConvertedBy: d.QuoteFee.ConvertedBy,
+	}
 
 	t.AssetDecimals = d.AssetDecimals
 	t.QuoteDecimals = d.QuoteDecimals
-	t.FeeDecimals = d.FeeDecimals
-	t.QuoteFeeDecimals = d.QuoteFeeDecimals
-
 	t.Props = d.Props
-
 	t.Plugin = d.Plugin
 	t.PluginVersion = d.PluginVersion
 	t.Created = d.Created
 	return nil
 }
 
+type CostDoc struct {
+	Name        string               `json:"name" bson:"name"`
+	Currency    string               `json:"currency" bson:"currency"`
+	Amount      primitive.Decimal128 `json:"amount" bson:"amount"`
+	AmountC     primitive.Decimal128 `json:"amountC" bson:"amountC"`
+	Price       primitive.Decimal128 `json:"price" bson:"price"`
+	PriceC      primitive.Decimal128 `json:"priceC" bson:"priceC"`
+	Decimals    int32                `json:"decimals" bson:"decimals"`
+	ConvertedBy string               `json:"convertedBy" bson:"convertedBy"`
+}
+
 // Intermediary type used to (un-)marshal trades for mongodb.
 type tradeDoc struct {
-	ID      primitive.ObjectID `bson:"_id"`
-	TxID    string             `json:"txId" bson:"txId"`
-	Ts      time.Time          `json:"ts" bson:"ts"`
-	Account string             `json:"account" bson:"account"`
-	Comment string             `json:"comment" bson:"comment"`
-
-	Ticker string   `json:"ticker" bson:"ticker"`
-	Quote  Currency `json:"quote" bson:"quote"`
-	Asset  Currency `json:"asset" bson:"asset"`
-
+	ID                    primitive.ObjectID   `bson:"_id"`
+	TxID                  string               `json:"txId" bson:"txId"`
+	Ts                    time.Time            `json:"ts" bson:"ts"`
+	Account               string               `json:"account" bson:"account"`
+	Comment               string               `json:"comment" bson:"comment"`
+	Ticker                string               `json:"ticker" bson:"ticker"`
+	Quote                 Currency             `json:"quote" bson:"quote"`
+	Asset                 Currency             `json:"asset" bson:"asset"`
 	Price                 primitive.Decimal128 `json:"price" bson:"price"`
 	PriceC                primitive.Decimal128 `json:"priceC" bson:"priceC"`
 	PriceConvertedBy      string               `json:"priceConvertedBy"`
@@ -224,30 +236,15 @@ type tradeDoc struct {
 	Action                TradeAction          `json:"action" bson:"action"`
 	OrderType             OrderType            `json:"orderType" bson:"orderType"`
 	OrderID               string               `json:"orderId" bson:"orderId"`
-
-	Fee            primitive.Decimal128 `json:"fee" bson:"fee"`
-	FeePriceC      primitive.Decimal128 `json:"feePriceC" bson:"feePriceC"`
-	FeeCurrency    Currency             `json:"feeCurrency" bson:"feeCurrency"`
-	FeeC           primitive.Decimal128 `json:"feeC" bson:"feeC"`
-	FeeConvertedBy string               `json:"feeConvertedBy" bson:"feeConvertedBy"`
-
-	QuoteFee            primitive.Decimal128 `json:"quoteFee" bson:"quoteFee"`
-	QuoteFeePriceC      primitive.Decimal128 `json:"quoteFeePriceC" bson:"quoteFeePriceC"`
-	QuoteFeeCurrency    Currency             `json:"quoteFeeCurrency" bson:"quoteFeeCurrency"`
-	QuoteFeeC           primitive.Decimal128 `json:"quoteFeeC" bson:"quoteFeeC"`
-	QuoteFeeConvertedBy string               `json:"quoteFeeConvertedBy" bson:"quoteFeeConvertedBy"`
-
-	AssetDecimals    int32 `json:"assetDecimals" bson:"assetDecimals"`
-	QuoteDecimals    int32 `json:"quoteDecimals" bson:"quoteDecimals"`
-	FeeDecimals      int32 `json:"feeDecimals" bson:"feeDecimals"`
-	QuoteFeeDecimals int32 `json:"quoteFeeDecimals" bson:"quoteFeeDecimals"`
-
-	Props TradeProps `json:"props" bson:"props"`
-
-	Plugin        string    `json:"plugin" bson:"plugin"`
-	PluginVersion string    `json:"pluginVersion" bson:"pluginVersion"`
-	Created       time.Time `json:"created" bson:"created"`
-	Updated       time.Time `json:"updated" bson:"updated"`
+	Fee                   CostDoc              `json:"fee" bson:"fee"`
+	QuoteFee              CostDoc              `json:"quoteFee" bson:"quoteFee"`
+	AssetDecimals         int32                `json:"assetDecimals" bson:"assetDecimals"`
+	QuoteDecimals         int32                `json:"quoteDecimals" bson:"quoteDecimals"`
+	Props                 Props                `json:"props" bson:"props"`
+	Plugin                string               `json:"plugin" bson:"plugin"`
+	PluginVersion         string               `json:"pluginVersion" bson:"pluginVersion"`
+	Created               time.Time            `json:"created" bson:"created"`
+	Updated               time.Time            `json:"updated" bson:"updated"`
 }
 
 func (t *Trade) Store() error {
@@ -270,6 +267,14 @@ func DecimalToMongoDecimal(v decimal.Decimal) primitive.Decimal128 {
 }
 
 func ProtoTradeToTrade(t *proto.Trade) Trade {
+	if t.Fee == nil {
+		t.Fee = &proto.Cost{}
+	}
+
+	if t.QuoteFee == nil {
+		t.QuoteFee = &proto.Cost{}
+	}
+
 	return Trade{
 		ID:                    primitive.NewObjectID(),
 		TxID:                  t.TxID,
@@ -290,21 +295,29 @@ func ProtoTradeToTrade(t *proto.Trade) Trade {
 		ValueC:                StrToDecimal(t.ValueC, decimal.Zero),
 		OrderType:             OrderType(t.OrderType),
 		OrderID:               t.OrderID,
-		Fee:                   StrToDecimal(t.Fee),
-		FeePriceC:             StrToDecimal(t.FeePriceC),
-		FeeCurrency:           Currency(t.FeeCurrency),
-		FeeC:                  StrToDecimal(t.FeeC),
-		FeeConvertedBy:        t.FeeConvertedBy,
-		QuoteFee:              StrToDecimal(t.QuoteFee),
-		QuoteFeePriceC:        StrToDecimal(t.QuoteFeePriceC),
-		QuoteFeeCurrency:      Currency(t.QuoteFeeCurrency),
-		QuoteFeeC:             StrToDecimal(t.QuoteFeeC),
-		QuoteFeeConvertedBy:   t.QuoteFeeConvertedBy,
-		AssetDecimals:         t.AssetDecimals,
-		QuoteDecimals:         t.QuoteDecimals,
-		FeeDecimals:           t.FeeDecimals,
-		QuoteFeeDecimals:      t.QuoteFeeDecimals,
-		Props: TradeProps{
+		Fee: Cost{
+			Name:        t.Fee.Name,
+			Currency:    t.Fee.Currency,
+			Amount:      StrToDecimal(t.Fee.Amount),
+			AmountC:     StrToDecimal(t.Fee.AmountC),
+			Price:       StrToDecimal(t.Fee.Price),
+			PriceC:      StrToDecimal(t.Fee.PriceC),
+			Decimals:    t.Fee.Decimals,
+			ConvertedBy: t.Fee.ConvertedBy,
+		},
+		QuoteFee: Cost{
+			Name:        t.QuoteFee.Name,
+			Currency:    t.QuoteFee.Currency,
+			Amount:      StrToDecimal(t.QuoteFee.Amount),
+			AmountC:     StrToDecimal(t.QuoteFee.AmountC),
+			Price:       StrToDecimal(t.QuoteFee.Price),
+			PriceC:      StrToDecimal(t.QuoteFee.PriceC),
+			Decimals:    t.QuoteFee.Decimals,
+			ConvertedBy: t.QuoteFee.ConvertedBy,
+		},
+		AssetDecimals: t.AssetDecimals,
+		QuoteDecimals: t.QuoteDecimals,
+		Props: Props{
 			IsMarginTrade: t.Props.IsMarginTrade,
 			IsDerivative:  t.Props.IsDerivative,
 			IsPhysical:    t.Props.IsPhysical,
@@ -338,19 +351,27 @@ func TradeToProtoTrade(t Trade) *proto.Trade {
 		ValueC:                t.ValueC.String(),
 		OrderType:             proto.OrderType(t.OrderType),
 		OrderID:               t.OrderID,
-		Fee:                   t.Fee.String(),
-		FeeDecimals:           t.FeeDecimals,
-		FeePriceC:             t.FeePriceC.String(),
-		FeeCurrency:           string(t.FeeCurrency),
-		FeeC:                  t.FeeC.String(),
-		FeeConvertedBy:        t.FeeConvertedBy,
-		QuoteFee:              t.QuoteFee.String(),
-		QuoteFeeDecimals:      t.QuoteFeeDecimals,
-		QuoteFeePriceC:        t.QuoteFeePriceC.String(),
-		QuoteFeeCurrency:      string(t.QuoteFeeCurrency),
-		QuoteFeeC:             t.QuoteFeeC.String(),
-		QuoteFeeConvertedBy:   t.QuoteFeeConvertedBy,
-		Props: &proto.TradeProps{
+		Fee: &proto.Cost{
+			Name:        t.Fee.Name,
+			Currency:    t.Fee.Currency,
+			Amount:      t.Fee.Amount.String(),
+			AmountC:     t.Fee.AmountC.String(),
+			Price:       t.Fee.Price.String(),
+			PriceC:      t.Fee.PriceC.String(),
+			Decimals:    t.Fee.Decimals,
+			ConvertedBy: t.Fee.ConvertedBy,
+		},
+		QuoteFee: &proto.Cost{
+			Name:        t.QuoteFee.Name,
+			Currency:    t.QuoteFee.Currency,
+			Amount:      t.QuoteFee.Amount.String(),
+			AmountC:     t.QuoteFee.AmountC.String(),
+			Price:       t.QuoteFee.Price.String(),
+			PriceC:      t.QuoteFee.PriceC.String(),
+			Decimals:    t.QuoteFee.Decimals,
+			ConvertedBy: t.QuoteFee.ConvertedBy,
+		},
+		Props: &proto.Props{
 			IsMarginTrade: t.Props.IsMarginTrade,
 			IsDerivative:  t.Props.IsDerivative,
 			IsPhysical:    t.Props.IsPhysical,

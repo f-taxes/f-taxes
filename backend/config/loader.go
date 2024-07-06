@@ -23,6 +23,7 @@ func LoadAppConfig(path string) *koanf.Koanf {
 		"plugins.registry": "https://github.com/f-taxes/plugins/raw/main/list.json",
 		"grpc.host":        "127.0.0.1",
 		"grpc.port":        4222,
+		"snapshots.path":   "./snapshots",
 	}, "."), nil)
 
 	f := file.Provider(path)

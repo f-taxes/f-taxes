@@ -183,10 +183,10 @@ class TheTrades extends BaseElement {
       { name: 'priceC', label: 'Price C', type: 'number' },
       { name: 'amount', label: 'Amount', type: 'number' },
       { name: 'value', label: 'Value', type: 'number' },
-      { name: 'fee', label: 'Fee', type: 'number' },
-      { name: 'feeC', label: 'Fee C', type: 'number' },
-      { name: 'quoteFee', label: 'Quote Fee', type: 'number' },
-      { name: 'quoteFeeC', label: 'Quote Fee C', type: 'number' },
+      { name: 'fee.amount', label: 'Fee', type: 'number' },
+      { name: 'fee.amountC', label: 'Fee C', type: 'number' },
+      { name: 'quoteFee.amount', label: 'Quote Fee', type: 'number' },
+      { name: 'quoteFee.amountC', label: 'Quote Fee C', type: 'number' },
       { name: 'side', label: 'Side', type: 'enum', enums: [ { value: 'buy', label: 'Buy' }, { value: 'sell', label: 'Sell' } ] }
     ];
   }

@@ -67,6 +67,15 @@ class TradeRow extends Store(TpTableItem) {
         return html`<div part="cell" .field=${column.name}>${orderType[item[column.name]]}</div>`;
       case 'assetType':
         return html`<div part="cell" .field=${column.name}>${assetType[item[column.name]]}</div>`;
+      case 'fee.amount':
+      case 'fee.amountC':
+      case 'fee.priceC':
+      case 'fee.currency':
+      case 'quoteFee.amount':
+      case 'quoteFee.amountC':
+      case 'quoteFee.priceC':
+      case 'quoteFee.currency':
+        return html`<div part="cell" .field=${column.name}>${reach(column.name, item)}</div>`;
       case 'props.isMarginTrade':
       case 'props.isDerivative':
       case 'props.isPhysical':

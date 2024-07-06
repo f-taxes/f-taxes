@@ -106,32 +106,32 @@ class TradeEditor extends fetchMixin(LitElement) {
             </tp-input>
   
             <label>*Fee</label>
-            <tp-input name="fee" .value=${trade.fee || 0} required errorMessage="required">
+            <tp-input name="fee.amount" .value=${trade.fee?.amount || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
 
             <label>*Fee Price Converted</label>
-            <tp-input name="feePriceC" .value=${trade.feePriceC || 0} required errorMessage="required">
+            <tp-input name="fee.priceC" .value=${trade.fee?.priceC || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>*Fee Currency</label>
-            <tp-input name="feeCurrency" .value=${trade.feeCurrency} required errorMessage="required">
+            <tp-input name="fee.currency" .value=${trade.fee?.currency} required errorMessage="required">
               <input type="text">
             </tp-input>
 
             <label>*Quote Fee</label>
-            <tp-input name="quoteFee" .value=${trade.quoteFee || 0} required errorMessage="required">
+            <tp-input name="quoteFee.amount" .value=${trade.quoteFee?.amount || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
 
             <label>*Quote Fee Price Converted</label>
-            <tp-input name="quoteFeePriceC" .value=${trade.quoteFeePriceC || 0} required errorMessage="required">
+            <tp-input name="quoteFee.priceC" .value=${trade.quoteFee?.priceC || 0} required errorMessage="required">
               <input type="text">
             </tp-input>
   
             <label>Quote Fee Currency</label>
-            <tp-input name="quoteFeeCurrency" .value=${trade.quoteFeeCurrency}>
+            <tp-input name="quoteFee.currency" .value=${trade.quoteFee?.currency}>
               <input type="text">
             </tp-input>
   

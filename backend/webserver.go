@@ -9,6 +9,7 @@ import (
 	"github.com/f-taxes/f-taxes/backend/global"
 	"github.com/f-taxes/f-taxes/backend/plugin"
 	"github.com/f-taxes/f-taxes/backend/settings"
+	"github.com/f-taxes/f-taxes/backend/snapshot"
 	"github.com/f-taxes/f-taxes/backend/trades"
 	"github.com/f-taxes/f-taxes/backend/transfers"
 	"github.com/kataras/golog"
@@ -23,6 +24,11 @@ func Start(cfg *koanf.Koanf, webAssets embed.FS) {
 	app.SetRoutesNoLog(true)
 
 	global.ConnectDB(cfg)
+	// snapshot.Create()
+	// err := snapshot.RestoreFromSnapshot()
+	// if err != nil {
+	// 	golog.Fatal(err)
+	// }
 
 	registerFrontend(app, cfg, webAssets)
 
@@ -32,6 +38,7 @@ func Start(cfg *koanf.Koanf, webAssets embed.FS) {
 	plugin.RegisterRoutes(app, cfg)
 	trades.RegisterRoutes(app)
 	transfers.RegisterRoutes(app)
+	snapshot.RegisterRoutes(app, cfg)
 
 	global.SetupWebsocketServer(app)
 

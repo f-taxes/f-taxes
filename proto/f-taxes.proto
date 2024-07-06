@@ -23,10 +23,28 @@ enum OrderType {
   MAKER = 1;
 }
 
-message TradeProps {
+enum CostType {
+  EXECUTION_FEE = 0;
+  FUNDING_FEE = 1;
+  BORROW_FEE = 2;
+  OTHER = 9;
+}
+
+message Props {
   bool IsMarginTrade = 1;
   bool IsDerivative = 2;
   bool IsPhysical = 3;
+}
+
+message Cost {
+  string Name = 1;
+  string Currency = 2;
+  string Amount = 3;
+  string AmountC = 4;
+  string Price = 5;
+  string PriceC = 6;
+  int32 Decimals = 7;
+  string ConvertedBy = 8;
 }
 
 message Trade {
@@ -38,6 +56,7 @@ message Trade {
   string Ticker = 1000;
   string Quote = 1001;
   string Asset = 1002;
+  string SettlementCurrency = 1003;
   
   string Price = 2000;
   string PriceC = 2001;
@@ -50,25 +69,30 @@ message Trade {
   TxAction Action = 2008;
   OrderType OrderType = 2009;
   string OrderID = 2010;
+
+  Cost Fee = 3000;
+  Cost QuoteFee = 3100;
   
-  string Fee = 3000;
-  string FeeC = 3001;
-  string FeeConvertedBy = 3002;
-  string FeeCurrency = 3003;
-  string FeePriceC = 3004;
-  
-  string QuoteFee = 3100;
-  string QuoteFeeC = 3101;
-  string QuoteFeeConvertedBy = 3102;
-  string QuoteFeeCurrency = 3103;
-  string QuoteFeePriceC = 3104;
+  // string Fee = 3000;
+  // string FeeC = 3001;
+  // string FeeConvertedBy = 3002;
+  // string FeeCurrency = 3003;
+  // string FeePriceC = 3004;
+    
+  // string QuoteFee = 3100;
+  // string QuoteFeeC = 3101;
+  // string QuoteFeeConvertedBy = 3102;
+  // string QuoteFeeCurrency = 3103;
+  // string QuoteFeePriceC = 3104;
   
   int32 AssetDecimals = 3200;
   int32 QuoteDecimals = 3201;
-  int32 FeeDecimals = 3202;
-  int32 QuoteFeeDecimals = 3203;
+  // int32 FeeDecimals = 3202;
+  // int32 QuoteFeeDecimals = 3203;
   
-  TradeProps Props = 4000;
+  Props Props = 4000;
+
+  repeated Cost OtherCosts = 5000;
 
   string Plugin = 9000;
   string PluginVersion = 9001;
